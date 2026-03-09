@@ -1,0 +1,25 @@
+{
+  "baseUrl": "https://example.com",
+  "pages": [
+    {
+      "url": "https://example.com",
+      "name": "Home",
+      "title": "Example Domain",
+      "elements": [
+        {
+          "category": "links",
+          "selector": "a",
+          "count": 1
+        },
+        {
+          "category": "headings",
+          "selector": "h1",
+          "count": 1
+        }
+      ],
+      "linksFound": 0,
+      "isLoginPage": false
+    }
+  ],
+  "requiresLogin": false
+}
