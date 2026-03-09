@@ -1,0 +1,49 @@
+name: AutoFlow Scan
+
+on:
+  repository_dispatch:
+    types: [scan]
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'URL to scan'
+        required: true
+        type: string
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm install playwright
+      
+      - name: Install Playwright browsers
+        run: npx playwright install chromium
+      
+      - name: Run AutoFlow
+        env:
+          TARGET_URL: ${{ github.event.client_payload.url || inputs.url }}
+        run: |
+          echo "Scanning: $TARGET_URL"
+          node autoflow.js "$TARGET_URL"
+      
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-result
+          path: workflow.json
+          retention-days: 7
+      
+      - name: Create Issue with Results
+        if: success()
+        run: |
+          echo "Scan completed successfully"
+          echo "Results saved to workflow.json"
