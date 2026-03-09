@@ -1,0 +1,13 @@
+{
+  "name": "autoflow",
+  "version": "1.0.0",
+  "description": "No-code browser automation - automatic workflow discovery",
+  "main": "autoflow.js",
+  "scripts": {
+    "start": "node autoflow.js",
+    "test": "node autoflow.js https://example.com"
+  },
+  "dependencies": {
+    "playwright": "^1.58.2"
+  }
+}
