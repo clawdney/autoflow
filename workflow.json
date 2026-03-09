@@ -1,25 +1,615 @@
 {
-  "baseUrl": "https://example.com",
+  "baseUrl": "https://brave.com",
   "pages": [
     {
-      "url": "https://example.com",
+      "url": "https://brave.com",
       "name": "Home",
-      "title": "Example Domain",
+      "title": "The browser that puts you first | Brave",
       "elements": [
+        {
+          "category": "buttons",
+          "selector": "button",
+          "count": 13
+        },
+        {
+          "category": "inputs",
+          "selector": "input",
+          "count": 16
+        },
         {
           "category": "links",
           "selector": "a",
-          "count": 1
+          "count": 128
         },
         {
           "category": "headings",
           "selector": "h1",
           "count": 1
+        },
+        {
+          "category": "cards",
+          "selector": ".card",
+          "count": 45
+        },
+        {
+          "category": "forms",
+          "selector": "form",
+          "count": 2
+        },
+        {
+          "category": "images",
+          "selector": "img",
+          "count": 29
         }
       ],
-      "linksFound": 0,
+      "linksFound": 31,
+      "isLoginPage": true
+    },
+    {
+      "url": "https://brave.com/download/",
+      "name": "Download",
+      "title": "Brave Browser Download | Brave",
+      "elements": [
+        {
+          "category": "buttons",
+          "selector": "button",
+          "count": 3
+        },
+        {
+          "category": "inputs",
+          "selector": "input",
+          "count": 1
+        },
+        {
+          "category": "links",
+          "selector": "a",
+          "count": 110
+        },
+        {
+          "category": "headings",
+          "selector": "h1",
+          "count": 1
+        },
+        {
+          "category": "cards",
+          "selector": ".card",
+          "count": 6
+        },
+        {
+          "category": "images",
+          "selector": "img",
+          "count": 25
+        }
+      ],
+      "linksFound": 31,
+      "isLoginPage": false
+    },
+    {
+      "url": "https://brave.com/android/",
+      "name": "Android",
+      "title": "Brave Private Web Browser, VPN - Apps on Google Play",
+      "elements": [
+        {
+          "category": "buttons",
+          "selector": "button",
+          "count": 23
+        },
+        {
+          "category": "links",
+          "selector": "a",
+          "count": 46
+        },
+        {
+          "category": "headings",
+          "selector": "h1",
+          "count": 1
+        },
+        {
+          "category": "images",
+          "selector": "img",
+          "count": 44
+        }
+      ],
+      "linksFound": 5,
+      "isLoginPage": false
+    },
+    {
+      "url": "https://brave.com/store/games",
+      "name": "Games",
+      "title": "404 Page not found | Brave",
+      "elements": [
+        {
+          "category": "buttons",
+          "selector": "button",
+          "count": 3
+        },
+        {
+          "category": "inputs",
+          "selector": "input",
+          "count": 1
+        },
+        {
+          "category": "links",
+          "selector": "a",
+          "count": 104
+        },
+        {
+          "category": "headings",
+          "selector": "h1",
+          "count": 1
+        },
+        {
+          "category": "images",
+          "selector": "img",
+          "count": 11
+        }
+      ],
+      "linksFound": 31,
+      "isLoginPage": false
+    },
+    {
+      "url": "https://brave.com/ios/",
+      "name": "Ios",
+      "title": "‎Brave Browser & Search Engine App - App Store",
+      "elements": [
+        {
+          "category": "buttons",
+          "selector": "button",
+          "count": 30
+        },
+        {
+          "category": "inputs",
+          "selector": "input",
+          "count": 1
+        },
+        {
+          "category": "links",
+          "selector": "a",
+          "count": 240
+        },
+        {
+          "category": "headings",
+          "selector": "h1",
+          "count": 7
+        },
+        {
+          "category": "cards",
+          "selector": "article",
+          "count": 48
+        },
+        {
+          "category": "forms",
+          "selector": "form",
+          "count": 1
+        },
+        {
+          "category": "images",
+          "selector": "img",
+          "count": 23
+        }
+      ],
+      "linksFound": 18,
+      "isLoginPage": true
+    },
+    {
+      "url": "https://apps.apple.com/us/iphone/today",
+      "name": "Today",
+      "title": "‎Today for iPhone - App Store",
+      "elements": [
+        {
+          "category": "buttons",
+          "selector": "button",
+          "count": 8
+        },
+        {
+          "category": "inputs",
+          "selector": "input",
+          "count": 1
+        },
+        {
+          "category": "links",
+          "selector": "a",
+          "count": 300
+        },
+        {
+          "category": "headings",
+          "selector": "h1",
+          "count": 1
+        },
+        {
+          "category": "forms",
+          "selector": "form",
+          "count": 1
+        },
+        {
+          "category": "images",
+          "selector": "img",
+          "count": 95
+        }
+      ],
+      "linksFound": 18,
+      "isLoginPage": false
+    },
+    {
+      "url": "https://apps.apple.com/us/ipad/today",
+      "name": "Today",
+      "title": "‎Today for iPad - App Store",
+      "elements": [
+        {
+          "category": "buttons",
+          "selector": "button",
+          "count": 8
+        },
+        {
+          "category": "inputs",
+          "selector": "input",
+          "count": 1
+        },
+        {
+          "category": "links",
+          "selector": "a",
+          "count": 294
+        },
+        {
+          "category": "headings",
+          "selector": "h1",
+          "count": 1
+        },
+        {
+          "category": "forms",
+          "selector": "form",
+          "count": 1
+        },
+        {
+          "category": "images",
+          "selector": "img",
+          "count": 93
+        }
+      ],
+      "linksFound": 18,
+      "isLoginPage": false
+    },
+    {
+      "url": "https://apps.apple.com/us/mac/discover",
+      "name": "Discover",
+      "title": "‎Discover for Mac - App Store",
+      "elements": [
+        {
+          "category": "buttons",
+          "selector": "button",
+          "count": 52
+        },
+        {
+          "category": "inputs",
+          "selector": "input",
+          "count": 1
+        },
+        {
+          "category": "links",
+          "selector": "a",
+          "count": 413
+        },
+        {
+          "category": "headings",
+          "selector": "h1",
+          "count": 1
+        },
+        {
+          "category": "cards",
+          "selector": "article",
+          "count": 87
+        },
+        {
+          "category": "forms",
+          "selector": "form",
+          "count": 1
+        },
+        {
+          "category": "images",
+          "selector": "img",
+          "count": 175
+        }
+      ],
+      "linksFound": 21,
+      "isLoginPage": false
+    },
+    {
+      "url": "https://apps.apple.com/us/vision/apps-and-games",
+      "name": "Apps And Games",
+      "title": "‎Apps & Games for Vision - App Store",
+      "elements": [
+        {
+          "category": "buttons",
+          "selector": "button",
+          "count": 52
+        },
+        {
+          "category": "inputs",
+          "selector": "input",
+          "count": 1
+        },
+        {
+          "category": "links",
+          "selector": "a",
+          "count": 411
+        },
+        {
+          "category": "headings",
+          "selector": "h1",
+          "count": 1
+        },
+        {
+          "category": "cards",
+          "selector": "article",
+          "count": 96
+        },
+        {
+          "category": "forms",
+          "selector": "form",
+          "count": 1
+        },
+        {
+          "category": "images",
+          "selector": "img",
+          "count": 175
+        }
+      ],
+      "linksFound": 13,
+      "isLoginPage": false
+    },
+    {
+      "url": "https://apps.apple.com/us/watch/apps-and-games",
+      "name": "Apps And Games",
+      "title": "‎Apps for Watch - App Store",
+      "elements": [
+        {
+          "category": "buttons",
+          "selector": "button",
+          "count": 18
+        },
+        {
+          "category": "inputs",
+          "selector": "input",
+          "count": 1
+        },
+        {
+          "category": "links",
+          "selector": "a",
+          "count": 233
+        },
+        {
+          "category": "headings",
+          "selector": "h1",
+          "count": 1
+        },
+        {
+          "category": "cards",
+          "selector": "article",
+          "count": 21
+        },
+        {
+          "category": "forms",
+          "selector": "form",
+          "count": 1
+        },
+        {
+          "category": "images",
+          "selector": "img",
+          "count": 1237
+        }
+      ],
+      "linksFound": 10,
+      "isLoginPage": false
+    },
+    {
+      "url": "https://brave.com/shields/",
+      "name": "Shields",
+      "title": "Brave Shields - Blocking Ads, Trackers & more | Brave",
+      "elements": [
+        {
+          "category": "buttons",
+          "selector": "button",
+          "count": 8
+        },
+        {
+          "category": "inputs",
+          "selector": "input",
+          "count": 1
+        },
+        {
+          "category": "links",
+          "selector": "a",
+          "count": 113
+        },
+        {
+          "category": "headings",
+          "selector": "h1",
+          "count": 1
+        },
+        {
+          "category": "images",
+          "selector": "img",
+          "count": 17
+        }
+      ],
+      "linksFound": 31,
+      "isLoginPage": false
+    },
+    {
+      "url": "https://brave.com/firewall-vpn/",
+      "name": "Firewall Vpn",
+      "title": "Brave VPN: The secure, fast VPN, right in your browser | Brave",
+      "elements": [
+        {
+          "category": "buttons",
+          "selector": "button",
+          "count": 3
+        },
+        {
+          "category": "inputs",
+          "selector": "input",
+          "count": 1
+        },
+        {
+          "category": "links",
+          "selector": "a",
+          "count": 136
+        },
+        {
+          "category": "headings",
+          "selector": "h1",
+          "count": 1
+        },
+        {
+          "category": "cards",
+          "selector": ".card",
+          "count": 22
+        },
+        {
+          "category": "images",
+          "selector": "img",
+          "count": 17
+        }
+      ],
+      "linksFound": 31,
+      "isLoginPage": false
+    },
+    {
+      "url": "https://brave.com/store/apps",
+      "name": "Apps",
+      "title": "404 Page not found | Brave",
+      "elements": [
+        {
+          "category": "buttons",
+          "selector": "button",
+          "count": 3
+        },
+        {
+          "category": "inputs",
+          "selector": "input",
+          "count": 1
+        },
+        {
+          "category": "links",
+          "selector": "a",
+          "count": 104
+        },
+        {
+          "category": "headings",
+          "selector": "h1",
+          "count": 1
+        },
+        {
+          "category": "images",
+          "selector": "img",
+          "count": 11
+        }
+      ],
+      "linksFound": 31,
+      "isLoginPage": false
+    },
+    {
+      "url": "https://brave.com/store/movies",
+      "name": "Movies",
+      "title": "404 Page not found | Brave",
+      "elements": [
+        {
+          "category": "buttons",
+          "selector": "button",
+          "count": 3
+        },
+        {
+          "category": "inputs",
+          "selector": "input",
+          "count": 1
+        },
+        {
+          "category": "links",
+          "selector": "a",
+          "count": 104
+        },
+        {
+          "category": "headings",
+          "selector": "h1",
+          "count": 1
+        },
+        {
+          "category": "images",
+          "selector": "img",
+          "count": 11
+        }
+      ],
+      "linksFound": 31,
+      "isLoginPage": false
+    },
+    {
+      "url": "https://brave.com/store/books",
+      "name": "Books",
+      "title": "404 Page not found | Brave",
+      "elements": [
+        {
+          "category": "buttons",
+          "selector": "button",
+          "count": 3
+        },
+        {
+          "category": "inputs",
+          "selector": "input",
+          "count": 1
+        },
+        {
+          "category": "links",
+          "selector": "a",
+          "count": 104
+        },
+        {
+          "category": "headings",
+          "selector": "h1",
+          "count": 1
+        },
+        {
+          "category": "images",
+          "selector": "img",
+          "count": 11
+        }
+      ],
+      "linksFound": 31,
+      "isLoginPage": false
+    },
+    {
+      "url": "https://brave.com/store/apps/category/FAMILY",
+      "name": "FAMILY",
+      "title": "404 Page not found | Brave",
+      "elements": [
+        {
+          "category": "buttons",
+          "selector": "button",
+          "count": 3
+        },
+        {
+          "category": "inputs",
+          "selector": "input",
+          "count": 1
+        },
+        {
+          "category": "links",
+          "selector": "a",
+          "count": 104
+        },
+        {
+          "category": "headings",
+          "selector": "h1",
+          "count": 1
+        },
+        {
+          "category": "images",
+          "selector": "img",
+          "count": 11
+        }
+      ],
+      "linksFound": 31,
       "isLoginPage": false
     }
   ],
-  "requiresLogin": false
+  "requiresLogin": true
 }

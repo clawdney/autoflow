@@ -1,5 +1,9 @@
 const { chromium } = require('playwright');
 
+function toTitleCase(str) {
+    return str.replace(/\b\w/g, l => l.toUpperCase());
+}
+
 class AutoFlow {
     constructor(url) {
         this.baseUrl = url;
@@ -138,7 +142,7 @@ class AutoFlow {
         
         const parts = path.split('/').filter(p => p);
         if (parts.length > 0) {
-            return parts[parts.length - 1].replace(/[-_]/g, ' ').replace(/\.\w+$/, '').titleCase();
+            return toTitleCase(parts[parts.length - 1].replace(/[-_]/g, ' ').replace(/\.\w+$/, ''));
         }
         
         return title.substring(0, 30);
