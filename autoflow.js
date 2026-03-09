@@ -9,6 +9,7 @@ class AutoFlow {
     }
     
     async discover(maxPages = 20) {
+        this.maxPages = maxPages;
         const browser = await chromium.launch({ headless: true });
         const context = await browser.newContext();
         const page = await context.newPage();
@@ -28,7 +29,7 @@ class AutoFlow {
     }
     
     async visitPage(page, url) {
-        if (this.visited.has(url) || this.visited.size >= maxPages) return;
+        if (this.visited.has(url) || this.visited.size >= this.maxPages) return;
         this.visited.add(url);
         
         console.log(`  📄 Visiting: ${url}`);
