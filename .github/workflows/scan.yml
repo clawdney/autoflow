@@ -38,6 +38,14 @@ jobs:
           echo "Scanning: $URL"
           node autoflow.js "$URL"
       
+      - name: Commit scan results
+        run: |
+          git config --local user.email "clawdney@openclaw.ai"
+          git config --local user.name "Clawdney"
+          git add workflow.json
+          git commit -m "Scan results" || echo "No changes to commit"
+          git push origin master || echo "Push failed"
+      
       - name: Generate and deploy results
         run: |
           chmod +x generate-results.sh
