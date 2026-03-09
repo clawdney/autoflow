@@ -38,15 +38,17 @@ jobs:
           echo "Scanning: $URL"
           node autoflow.js "$URL"
       
-      - name: Generate results HTML
+      - name: Generate and deploy results
         run: |
           chmod +x generate-results.sh
           URL="${{ github.event.inputs.url || 'https://example.com' }}"
           ./generate-results.sh "$URL"
-          ls -la results/
+          
+          # Copy results to root for deployment
+          cp results/index.html index.html
       
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./results
+          publish_dir: ./
