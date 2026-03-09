@@ -273,19 +273,33 @@
                     if (run.conclusion === 'success') {
                         showStatus('✅ Scan complete!', 'success');
                         
-                        // Build demo results (since we can't easily fetch artifacts)
-                        // In production, you'd fetch the artifact
-                        pageList.innerHTML = `
-                            <li>
-                                <span class="page-name">Home ⭐</span>
-                                <div class="page-url">${url}</div>
-                                <div class="page-elements">buttons, inputs, links, headings</div>
-                            </li>
-                            <li>
-                                <span class="page-name">Pages</span>
-                                <div class="page-url">Workflow generated - check GitHub Actions tab</div>
-                            </li>
-                        `;
+                        // Fetch results from artifact
+                        try {
+                            const artifactRes = await fetch(
+                                `https://api.github.com/repos/${REPO}/actions/runs/${run.id}/artifacts`,
+                                { headers: { 'Authorization': `Bearer ${token}` } }
+                            );
+                            const artifacts = await artifactRes.json();
+                            const artifact = artifacts.artifacts?.[0];
+                            
+                            if (artifact) {
+                                // Download artifact
+                                const zipRes = await fetch(artifact.archive_download_url, 
+                                    { headers: { 'Authorization': `Bearer ${token}` } });
+                                // For now, just show a link to the results
+                                pageList.innerHTML = `
+                                    <li>
+                                        <span class="page-name">📄 Results generated!</span>
+                                        <div class="page-url">Check GitHub Actions logs or download artifact</div>
+                                        <div class="page-elements"><a href="${run.html_url}" target="_blank">View on GitHub</a></div>
+                                    </li>
+                                `;
+                            } else {
+                                pageList.innerHTML = `<li><span class="page-name">✅ Scan complete!</span><div class="page-url">Check GitHub Actions for details</div></li>`;
+                            }
+                        } catch (e) {
+                            pageList.innerHTML = `<li><span class="page-name">✅ Done!</span><div class="page-url">Check GitHub Actions for results</div></li>`;
+                        }
                         results.classList.add('show');
                     } else {
                         showStatus('❌ Scan failed: ' + run.conclusion, 'error');
