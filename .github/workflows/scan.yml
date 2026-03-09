@@ -45,6 +45,13 @@ jobs:
           git add workflow.json
           git commit -m "Scan results" || echo "No changes to commit"
           git push origin master || echo "Push failed"
+        if: success()
+      
+      - name: Re-checkout for latest
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 1
       
       - name: Generate and deploy results
         run: |
