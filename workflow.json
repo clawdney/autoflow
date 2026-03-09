@@ -248,7 +248,7 @@
         {
           "category": "links",
           "selector": "a",
-          "count": 300
+          "count": 290
         },
         {
           "category": "headings",
@@ -263,7 +263,7 @@
         {
           "category": "images",
           "selector": "img",
-          "count": 97
+          "count": 87
         }
       ],
       "linksFound": 18,
