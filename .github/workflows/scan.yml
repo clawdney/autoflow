@@ -43,6 +43,7 @@ jobs:
           chmod +x generate-results.sh
           URL="${{ github.event.inputs.url || 'https://example.com' }}"
           ./generate-results.sh "$URL"
+          ls -la results/
       
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
