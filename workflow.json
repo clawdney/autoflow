@@ -165,7 +165,7 @@
         {
           "category": "links",
           "selector": "a",
-          "count": 249
+          "count": 240
         },
         {
           "category": "headings",
@@ -209,7 +209,7 @@
         {
           "category": "links",
           "selector": "a",
-          "count": 290
+          "count": 294
         },
         {
           "category": "headings",
@@ -224,7 +224,7 @@
         {
           "category": "images",
           "selector": "img",
-          "count": 83
+          "count": 89
         }
       ],
       "linksFound": 18,
@@ -248,7 +248,7 @@
         {
           "category": "links",
           "selector": "a",
-          "count": 296
+          "count": 304
         },
         {
           "category": "headings",
@@ -263,7 +263,7 @@
         {
           "category": "images",
           "selector": "img",
-          "count": 89
+          "count": 99
         }
       ],
       "linksFound": 18,
