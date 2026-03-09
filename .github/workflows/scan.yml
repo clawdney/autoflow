@@ -10,7 +10,7 @@ on:
         description: 'URL to scan'
         required: true
         type: string
-        default: 'https://example.com'
+        default: 'https://brave.com'
 
 jobs:
   scan:
@@ -34,14 +34,14 @@ jobs:
       
       - name: Run AutoFlow
         run: |
-          URL="${{ github.event.inputs.url || 'https://example.com' }}"
+          URL="${{ github.event.inputs.url || 'https://brave.com' }}"
           echo "Scanning: $URL"
           node autoflow.js "$URL"
       
       - name: Generate and deploy results
         run: |
           chmod +x generate-results.sh
-          URL="${{ github.event.inputs.url || 'https://example.com' }}"
+          URL="${{ github.event.inputs.url || 'https://brave.com' }}"
           ./generate-results.sh "$URL"
           
           # Copy results to root for deployment
