@@ -102,7 +102,7 @@ class AutoFlow {
         const passwordInput = await page.$('input[type="password"]');
         if (passwordInput) return true;
         
-        const html = await page.content().toLowerCase();
+        const html = (await page.content()).toLowerCase();
         const indicators = ['password', 'login', 'signin', 'entrar', 'acessar'];
         
         if (indicators.some(i => html.includes(i))) {
