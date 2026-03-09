@@ -6,147 +6,15 @@
     <title>AutoFlow - No-Code Browser Automation</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 16px;
-            padding: 40px;
-            max-width: 600px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .container { background: white; border-radius: 16px; padding: 40px; max-width: 500px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
         h1 { color: #1a1a2e; margin-bottom: 8px; font-size: 28px; }
         .subtitle { color: #666; margin-bottom: 24px; font-size: 14px; }
-        
-        .form-group { margin-bottom: 16px; }
-        
-        label { display: block; margin-bottom: 6px; color: #333; font-weight: 500; font-size: 14px; }
-        
-        input[type="url"], input[type="password"] {
-            width: 100%;
-            padding: 12px 14px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-        
-        input:focus { outline: none; border-color: #4f46e5; }
-        
-        .btn {
-            background: #4f46e5;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: background 0.3s;
-        }
-        
+        .btn { background: #4f46e5; color: white; border: none; padding: 14px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; display: block; text-align: center; text-decoration: none; transition: background 0.3s; }
         .btn:hover { background: #4338ca; }
-        .btn:disabled { background: #999; cursor: not-allowed; }
-        
-        .note {
-            background: #f0f0f0;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 20px;
-        }
-        
-        .note a { color: #4f46e5; }
-        
-        .status {
-            margin-top: 20px;
-            padding: 14px;
-            border-radius: 8px;
-            display: none;
-            font-size: 14px;
-        }
-        
-        .status.loading { display: block; background: #fef3c7; color: #92400e; }
-        .status.success { display: block; background: #d1fae5; color: #065f46; }
-        .status.error { display: block; background: #fee2e2; color: #991b1b; }
-        
-        .progress-container {
-            width: 100%;
-            height: 8px;
-            background: #e0e0e0;
-            border-radius: 4px;
-            margin-top: 12px;
-            overflow: hidden;
-            display: none;
-        }
-        
-        .progress-container.show { display: block; }
-        
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            width: 0%;
-            transition: width 0.5s;
-            border-radius: 4px;
-        }
-        
-        .progress-steps {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: #666;
-            margin-top: 6px;
-        }
-        
-        .progress-step { opacity: 0.4; }
-        .progress-step.active { opacity: 1; color: #4f46e5; font-weight: 600; }
-        .progress-step.done { opacity: 1; color: #059669; }
-        
-        .spinner {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            border: 2px solid currentColor;
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-        
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        .results { margin-top: 24px; display: none; }
-        .results.show { display: block; }
-        .results h3 { color: #1a1a2e; margin-bottom: 12px; font-size: 16px; }
-        
-        .page-list { list-style: none; }
-        .page-list li { padding: 10px; background: #f5f5f5; border-radius: 6px; margin-bottom: 6px; }
-        .page-name { font-weight: 600; color: #333; font-size: 14px; }
-        .page-url { font-size: 11px; color: #666; word-break: break-all; }
-        .page-elements { font-size: 11px; color: #4f46e5; }
-        
-        .login-badge {
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 10px;
-            margin-left: 8px;
-        }
+        .note { background: #f0f0f0; padding: 12px; border-radius: 8px; font-size: 12px; color: #666; margin-bottom: 20px; }
+        .link-box { background: #f5f5f5; padding: 16px; border-radius: 8px; margin-top: 20px; }
+        .link-box a { color: #4f46e5; font-size: 16px; }
     </style>
 </head>
 <body>
@@ -155,192 +23,20 @@
         <p class="subtitle">No-code browser automation</p>
         
         <div class="note">
-            💡 <b>How it works:</b> Enter a URL → GitHub Action scans the site → Returns discovered pages.<br><br>
-            You need a <a href="https://github.com/settings/tokens" target="_blank">GitHub PAT token</a> with <code>repo</code> scope.
+            1. Click "Run Scan" → GitHub Actions<br>
+            2. Wait ~30s for scan to complete<br>
+            3. Click "View Results" to see output
         </div>
         
-        <div class="form-group">
-            <label>GitHub Personal Access Token</label>
-            <input type="password" id="token" placeholder="ghp_xxxx...">
-        </div>
+        <a class="btn" href="https://github.com/clawdney/autoflow/actions/workflows/scan.yml" target="_blank">
+            ▶ Run Scan
+        </a>
         
-        <div class="form-group">
-            <label>Website URL to scan</label>
-            <input type="url" id="url" placeholder="https://example.com" value="https://example.com">
-        </div>
-        
-        <button class="btn" id="scanBtn" onclick="startScan()">
-            🔍 Scan Website
-        </button>
-        
-        <div class="status" id="status"></div>
-        
-        <div class="progress-container" id="progressContainer">
-            <div class="progress-bar" id="progressBar"></div>
-            <div class="progress-steps">
-                <span class="progress-step" id="step1">🔗 Connect</span>
-                <span class="progress-step" id="step2">📄 Scan</span>
-                <span class="progress-step" id="step3">🧠 Analyze</span>
-                <span class="progress-step" id="step4">✅ Done</span>
-            </div>
-        </div>
-        
-        <div class="results" id="results">
-            <h3>📋 Discovered Pages</h3>
-            <ul class="page-list" id="pageList"></ul>
+        <div class="link-box">
+            <a href="https://clawdney.github.io/autoflow/results/" target="_blank">
+                📄 View Last Results
+            </a>
         </div>
     </div>
-
-    <script>
-        const REPO = 'clawdney/autoflow';
-        
-        async function startScan() {
-            const token = document.getElementById('token').trim();
-            const url = document.getElementById('url').value.trim();
-            const btn = document.getElementById('scanBtn');
-            const status = document.getElementById('status');
-            const results = document.getElementById('results');
-            const pageList = document.getElementById('pageList');
-            
-            if (!token) {
-                showStatus('Please enter your GitHub token', 'error');
-                return;
-            }
-            if (!url) {
-                showStatus('Please enter a URL', 'error');
-                return;
-            }
-            
-            btn.disabled = true;
-            showStatus('<span class="spinner"></span>Triggering scan...', 'loading');
-            results.classList.remove('show');
-            
-            try {
-                // Trigger workflow
-                const triggerRes = await fetch(
-                    `https://api.github.com/repos/${REPO}/dispatches`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/vnd.github+json',
-                            'Authorization': `Bearer ${token}`,
-                            'X-GitHub-Api-Version': '2022-11-28'
-                        },
-                        body: JSON.stringify({
-                            event_type: 'scan',
-                            client_payload: { url }
-                        })
-                    }
-                );
-                
-                if (!triggerRes.ok) {
-                    const err = await triggerRes.json();
-                    throw new Error(err.message || 'Failed to trigger');
-                }
-                
-                showStatus('<span class="spinner"></span>Scanning website... (wait ~30s)', 'loading');
-                
-                // Poll for completion
-                await pollResults(token, url);
-                
-            } catch (error) {
-                showStatus('Error: ' + error.message, 'error');
-                btn.disabled = false;
-            }
-        }
-        
-        async function pollResults(token, url) {
-            const status = document.getElementById('status');
-            const btn = document.getElementById('scanBtn');
-            const results = document.getElementById('results');
-            const pageList = document.getElementById('pageList');
-            
-            for (let i = 0; i < 45; i++) {
-                await new Promise(r => setTimeout(r, 2000));
-                
-                const runsRes = await fetch(
-                    `https://api.github.com/repos/${REPO}/actions/runs?event=repository_dispatch&per_page=1`,
-                    { headers: { 'Authorization': `Bearer ${token}` } }
-                );
-                
-                if (!runsRes.ok) continue;
-                const runs = await runsRes.json();
-                const run = runs.workflow_runs?.[0];
-                
-                if (!run) continue;
-                
-                if (run.status === 'completed') {
-                    if (run.conclusion === 'success') {
-                        showStatus('✅ Scan complete!', 'success');
-                        
-                        // Fetch results from artifact
-                        try {
-                            const artifactRes = await fetch(
-                                `https://api.github.com/repos/${REPO}/actions/runs/${run.id}/artifacts`,
-                                { headers: { 'Authorization': `Bearer ${token}` } }
-                            );
-                            const artifacts = await artifactRes.json();
-                            const artifact = artifacts.artifacts?.[0];
-                            
-                            if (artifact) {
-                                // Download artifact
-                                const zipRes = await fetch(artifact.archive_download_url, 
-                                    { headers: { 'Authorization': `Bearer ${token}` } });
-                                // For now, just show a link to the results
-                                pageList.innerHTML = `
-                                    <li>
-                                        <span class="page-name">📄 Results generated!</span>
-                                        <div class="page-url">Check GitHub Actions logs or download artifact</div>
-                                        <div class="page-elements"><a href="${run.html_url}" target="_blank">View on GitHub</a></div>
-                                    </li>
-                                `;
-                            } else {
-                                pageList.innerHTML = `<li><span class="page-name">✅ Scan complete!</span><div class="page-url">Check GitHub Actions for details</div></li>`;
-                            }
-                        } catch (e) {
-                            pageList.innerHTML = `<li><span class="page-name">✅ Done!</span><div class="page-url">Check GitHub Actions for results</div></li>`;
-                        }
-                        results.classList.add('show');
-                    } else {
-                        showStatus('❌ Scan failed: ' + run.conclusion, 'error');
-                    }
-                    btn.disabled = false;
-                    return;
-                }
-            }
-            
-            showStatus('⏱️ Taking longer than expected. Check GitHub Actions tab.', 'loading');
-            btn.disabled = false;
-        }
-        
-        function showStatus(msg, type) {
-            const status = document.getElementById('status');
-            status.className = 'status ' + type;
-            status.innerHTML = msg;
-            
-            // Control progress bar
-            const progress = document.getElementById('progressContainer');
-            const bar = document.getElementById('progressBar');
-            const steps = [
-                document.getElementById('step1'),
-                document.getElementById('step2'),
-                document.getElementById('step3'),
-                document.getElementById('step4')
-            ];
-            
-            if (type === 'loading') {
-                progress.classList.add('show');
-                bar.style.width = '50%';
-                steps[0].classList.add('done');
-                steps[1].classList.add('active');
-            } else if (type === 'success') {
-                bar.style.width = '100%';
-                steps[2].classList.remove('active');
-                steps[3].classList.add('done');
-            } else if (type === 'error') {
-                progress.classList.remove('show');
-            }
-        }
-    </script>
 </body>
 </html>

@@ -1,14 +1,18 @@
 name: AutoFlow Scan
 
 on:
-  repository_dispatch:
-    types: [scan]
+  push:
+    branches:
+      - master
   workflow_dispatch:
     inputs:
       url:
         description: 'URL to scan'
         required: true
         type: string
+
+env:
+  TARGET_URL: ${{ github.event.inputs.url || 'https://example.com' }}
 
 jobs:
   scan:
@@ -29,21 +33,75 @@ jobs:
         run: npx playwright install chromium
       
       - name: Run AutoFlow
-        env:
-          TARGET_URL: ${{ github.event.client_payload.url || inputs.url }}
-        run: |
-          echo "Scanning: $TARGET_URL"
-          node autoflow.js "$TARGET_URL"
+        run: node autoflow.js "$TARGET_URL"
       
-      - name: Upload results
-        uses: actions/upload-artifact@v4
+      - name: Generate results HTML
+        run: |
+          cat > results/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <title>AutoFlow Results</title>
+            <style>
+              body { font-family: -apple-system, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+              h1 { color: #1a1a2e; }
+              .page { background: #f5f5f5; padding: 16px; margin: 12px 0; border-radius: 8px; }
+              .page-name { font-weight: bold; font-size: 18px; }
+              .page-url { color: #666; word-break: break-all; }
+              .elements { color: #4f46e5; font-size: 14px; margin-top: 8px; }
+              .timestamp { color: #999; font-size: 12px; }
+            </style>
+          </head>
+          <body>
+            <h1>🤖 AutoFlow Results</h1>
+            <p class="timestamp">Last scan: SCAN_TIMESTAMP</p>
+            <p><strong>URL:</strong> TARGET_URL</p>
+            <h2>Discovered Pages</h2>
+            PAGES_HTML
+          </body>
+          </html>
+          EOF
+          
+          # Replace placeholders
+          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          sed -i "s/SCAN_TIMESTAMP/$TIMESTAMP/" results/index.html
+          sed -i "s|TARGET_URL|$TARGET_URL|g" results/index.html
+          
+          # Convert workflow.json to HTML
+          if [ -f workflow.json ]; then
+            python3 << 'PYEOF'
+import json
+with open('workflow.json') as f:
+    data = json.load(f)
+
+pages = data.get('pages', [])
+if pages:
+    html_parts = []
+    for p in pages:
+        els = p.get('elements', [])
+        el_names = ', '.join([e['category'] for e in els]) if els else 'none'
+        html_parts.append(f'''
+        <div class="page">
+          <div class="page-name">{p.get('name', 'Unknown')}</div>
+          <div class="page-url">{p.get('url', '')}</div>
+          <div class="elements">Elements: {el_names}</div>
+        </div>''')
+    pages_html = '\n'.join(html_parts)
+else:
+    pages_html = '<p>No pages found</p>'
+
+with open('results/index.html') as f:
+    content = f.read()
+
+content = content.replace('PAGES_HTML', pages_html)
+with open('results/index.html', 'w') as f:
+    f.write(content)
+PYEOF
+          fi
+      
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: workflow-result
-          path: workflow.json
-          retention-days: 7
-      
-      - name: Create Issue with Results
-        if: success()
-        run: |
-          echo "Scan completed successfully"
-          echo "Results saved to workflow.json"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./results
