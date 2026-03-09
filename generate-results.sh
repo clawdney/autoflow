@@ -5,7 +5,7 @@ TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
 mkdir -p results
 
 # Create basic HTML structure
-cat > results/index.html << 'EOF'
+cat > results/index.html << 'HTMLEOF'
 <!DOCTYPE html>
 <html>
 <head>
@@ -34,31 +34,45 @@ PAGECONTENT
 </div>
 </body>
 </html>
-EOF
+HTMLEOF
 
+# Replace placeholders
 sed -i "s/TIMESTAMP/$TIMESTAMP/" results/index.html
 sed -i "s|TARGETURL|$URL|" results/index.html
 
-# Add content
+# Add content from workflow.json if it exists
+PAGECONTENT=""
 if [ -f workflow.json ]; then
-    python3 << 'PYEOF'
+    # Check if pages array has data
+    PAGE_COUNT=$(python3 -c "import json; d=json.load(open('workflow.json')); print(len(d.get('pages', [])))" 2>/dev/null || echo "0")
+    
+    if [ "$PAGE_COUNT" -gt 0 ] 2>/dev/null; then
+        PAGECONTENT=$(python3 << 'PYEOF'
 import json
 with open('workflow.json') as f:
     d = json.load(f)
 pages = d.get('pages', [])
-if pages:
-    for p in pages:
-        els = p.get('elements', [])
-        en = ', '.join([e['category'] for e in els]) if els else 'none'
-        print(f'<div class="page"><div class="page-name">{p.get("name", "?")}</div><div class="page-url">{p.get("url", "")}</div><div class="elements">Elements: {en}</div></div>')
-else:
-    print('<p>No pages found</p>')
+result = []
+for p in pages:
+    els = p.get('elements', [])
+    en = ', '.join([e['category'] for e in els]) if els else 'none'
+    name = p.get('name', '?')
+    url = p.get('url', '')
+    result.append(f'<div class="page"><div class="page-name">{name}</div><div class="page-url">{url}</div><div class="elements">Elements: {en}</div></div>')
+print('\n'.join(result))
 PYEOF
-else
-    echo '<p>No data file</p>'
-fi > /tmp/pages.html
+)
+    fi
+fi
 
-sed -i 's|PAGECONTENT|'"$(cat /tmp/pages.html)"'|g' results/index.html
+if [ -z "$PAGECONTENT" ]; then
+    PAGECONTENT="<p>No pages found</p>"
+fi
 
-echo "Done. Results:"
-cat results/index.html
+# Replace PAGECONTENT using a different delimiter to avoid sed issues
+sed -i "s|PAGECONTENT|$PAGECONTENT|" results/index.html
+
+# Copy to root
+cp results/index.html index.html
+
+echo "Done."
