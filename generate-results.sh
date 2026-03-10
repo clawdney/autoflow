@@ -4,13 +4,13 @@ TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
 
 mkdir -p results
 
-python3 << 'PYEOF'
+python3 << PYEOF
 import json
 import os
 import html
 
-url = "$URL"
-timestamp = "$TIMESTAMP"
+url = "\$URL"
+timestamp = "\$TIMESTAMP"
 
 pages = []
 if os.path.exists('workflow.json'):
