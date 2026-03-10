@@ -1,141 +1,237 @@
 const { chromium } = require('playwright');
 
-function toTitleCase(str) {
-    return str.replace(/\b\w/g, l => l.toUpperCase());
-}
-
 class AutoFlow {
     constructor(url) {
         this.baseUrl = url;
         this.visited = new Set();
         this.pages = [];
-        this.requiresLogin = false;
     }
-    
-    async discover(maxPages = 20) {
+
+    async discover(maxPages = 30) {
         this.maxPages = maxPages;
         const browser = await chromium.launch({ headless: true });
         const context = await browser.newContext();
         const page = await context.newPage();
-        
-        // Handle dialogs
-        page.on('dialog', dialog => dialog.dismiss());
-        
+
+        // Start with the base URL
         await this.visitPage(page, this.baseUrl);
         
+        // Try to find and click menu items
+        await this.scanMenus(page);
+
         await browser.close();
         
         return {
             baseUrl: this.baseUrl,
             pages: this.pages,
-            requiresLogin: this.requiresLogin
+            menuScanned: true
         };
     }
-    
+
     async visitPage(page, url) {
-        if (this.visited.has(url) || this.visited.size >= this.maxPages) return;
-        this.visited.add(url);
+        if (this.visited.has(url) || this.pages.length >= this.maxPages) return;
         
-        console.log(`  📄 Visiting: ${url}`);
+        this.visited.add(url);
+        console.log(`   📄 Visiting: ${url}`);
         
         try {
-            await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
+            await page.goto(url, { waitUntil: 'networkidle', timeout: 15000 });
+            
+            // Wait a bit for any dynamic content
+            await page.waitForTimeout(1000);
+            
+            // Extract all relevant elements with their selectors
+            const elements = await this.extractElements(page);
+            
+            // Find menu links on this page
+            const menuLinks = await this.findMenuLinks(page);
+            
+            const pageData = {
+                url: url,
+                name: this.guessName(url, await page.title()),
+                title: await page.title(),
+                elements: elements,
+                menuLinks: menuLinks,
+                selectors: this.buildSelectorMap(elements)
+            };
+            
+            this.pages.push(pageData);
+            
+            // Visit pages found in menus
+            for (const link of menuLinks.slice(0, 10)) { // Limit to avoid too many pages
+                if (this.pages.length >= this.maxPages) break;
+                await this.visitPage(page, link);
+            }
+            
         } catch (e) {
-            console.log(`     ❌ Failed: ${e.message.substring(0, 50)}`);
-            return;
-        }
-        
-        const title = await page.title() || 'Untitled';
-        const elements = await this.extractElements(page);
-        const isLogin = await this.checkLoginForm(page);
-        
-        if (isLogin) {
-            this.requiresLogin = true;
-            console.log(`     🔐 Login form detected!`);
-        }
-        
-        const links = await this.findMenuLinks(page);
-        
-        this.pages.push({
-            url,
-            name: this.guessName(url, title),
-            title,
-            elements,
-            linksFound: links.length,
-            isLoginPage: isLogin
-        });
-        
-        // Visit linked pages
-        for (const link of links.slice(0, 5)) {
-            await this.visitPage(page, link);
+            console.log(`      ⚠️ Error: ${e.message.split('\n')[0]}`);
         }
     }
-    
+
     async extractElements(page) {
-        const categories = {
-            buttons: ['button', 'a.button', 'input[type=submit]', '.btn'],
-            inputs: ['input', 'textarea', 'select'],
-            links: ['a'],
-            headings: ['h1', 'h2', 'h3'],
-            cards: ['.card', '.product', '.item', 'article'],
-            forms: ['form'],
-            tables: ['table'],
-            images: ['img']
-        };
-        
+        const elementCategories = [
+            { category: 'buttons', selector: 'button, [role="button"], input[type="submit"], input[type="button"]' },
+            { category: 'inputs', selector: 'input[type="text"], input[type="email"], input[type="search"], input[type="password"], textarea' },
+            { category: 'links', selector: 'a[href]' },
+            { category: 'selects', selector: 'select' },
+            { category: 'forms', selector: 'form' },
+            { category: 'headings', selector: 'h1, h2, h3, h4, h5, h6' },
+            { category: 'images', selector: 'img' },
+            { category: 'lists', selector: 'ul, ol, [role="listbox"]' },
+            { category: 'tables', selector: 'table, [role="table"]' },
+            { category: 'dialogs', selector: '[role="dialog"], modal, .modal' },
+            { category: 'menus', selector: 'nav, [role="navigation"], .menu, .nav, header' }
+        ];
+
         const elements = [];
         
-        for (const [category, selectors] of Object.entries(categories)) {
-            for (const selector of selectors) {
+        for (const { category, selector } of elementCategories) {
+            try {
                 const els = await page.$$(selector);
-                if (els.length > 0) {
-                    elements.push({
-                        category,
-                        selector,
-                        count: els.length
-                    });
-                    break;
+                for (const el of els) {
+                    const selector = await this.getUniqueSelector(page, el);
+                    const text = await el.textContent().catch(() => '');
+                    const tag = await el.evaluate(e => e.tagName);
+                    
+                    if (text && text.trim()) {
+                        elements.push({
+                            category,
+                            tag: tag.toLowerCase(),
+                            selector: selector,
+                            text: text.trim().substring(0, 100),
+                            visible: await el.isVisible().catch(() => true)
+                        });
+                    }
                 }
+            } catch (e) {
+                // Ignore selector errors
             }
         }
         
         return elements;
     }
-    
-    async checkLoginForm(page) {
-        const passwordInput = await page.$('input[type="password"]');
-        if (passwordInput) return true;
+
+    async getUniqueSelector(page, element) {
+        // Try to get a human-readable selector
+        const id = await element.getAttribute('id');
+        if (id) return `#${id}`;
         
-        const html = (await page.content()).toLowerCase();
-        const indicators = ['password', 'login', 'signin', 'entrar', 'acessar'];
-        
-        if (indicators.some(i => html.includes(i))) {
-            const form = await page.$('form');
-            return !!form;
-        }
-        
-        return false;
-    }
-    
-    async findMenuLinks(page) {
-        const navSelectors = ['nav', 'header', '.menu', '.nav', '.navbar', '[role="navigation"]'];
-        let links = [];
-        
-        for (const selector of navSelectors) {
-            const nav = await page.$(selector);
-            if (nav) {
-                const anchors = await nav.$$('a');
-                for (const a of anchors) {
-                    const href = await a.getAttribute('href');
-                    if (href) links.push(new URL(href, this.baseUrl).href);
-                }
-                break;
+        const classes = await element.getAttribute('class');
+        if (classes) {
+            const classList = classes.split(/\s+/).filter(c => c);
+            if (classList.length > 0) {
+                const tag = await element.evaluate(e => e.tagName);
+                return `${tag.toLowerCase()}.${classList[0]}`;
             }
         }
         
-        return [...new Set(links)];
+        // Fall back to CSS selector
+        try {
+            return await element.evaluate((el) => {
+                if (el.id) return `#${el.id}`;
+                if (el.className && typeof el.className === 'string') {
+                    return `${el.tagName.toLowerCase()}.${el.className.split(' ')[0]}`;
+                }
+                return el.tagName.toLowerCase();
+            });
+        } catch (e) {
+            return 'unknown';
+        }
     }
-    
+
+    async findMenuLinks(page) {
+        const links = new Set();
+        
+        try {
+            // Find all navigation menus
+            const menus = await page.$$('nav, [role="navigation"], .menu, .nav, header, .navbar, .header');
+            
+            for (const menu of menus) {
+                const menuLinks = await menu.$$('a[href]');
+                for (const link of menuLinks) {
+                    const href = await link.getAttribute('href');
+                    const text = await link.textContent();
+                    
+                    if (href && !href.startsWith('#') && !href.startsWith('javascript')) {
+                        const fullUrl = href.startsWith('http') ? href : new URL(href, this.baseUrl).href;
+                        if (fullUrl.startsWith(this.baseUrl)) {
+                            links.add(fullUrl);
+                        }
+                    }
+                }
+            }
+            
+            // Also try dropdown menus
+            const dropdowns = await page.$$('[role="menu"], .dropdown-menu, .menu-dropdown, [class*="dropdown"]');
+            for (const dropdown of dropdowns) {
+                const ddLinks = await dropdown.$$('a[href]');
+                for (const link of ddLinks) {
+                    const href = await link.getAttribute('href');
+                    if (href && !href.startsWith('#')) {
+                        const fullUrl = href.startsWith('http') ? href : new URL(href, this.baseUrl).href;
+                        if (fullUrl.startsWith(this.baseUrl)) {
+                            links.add(fullUrl);
+                        }
+                    }
+                }
+            }
+            
+        } catch (e) {
+            // Ignore errors
+        }
+        
+        return Array.from(links);
+    }
+
+    async scanMenus(page) {
+        console.log(`\n🗺️  Scanning menus...`);
+        
+        try {
+            // Find all menu items with dropdowns
+            const menuItems = await page.$$('[role="menuitem"], .dropdown-toggle, .has-dropdown, [class*="menu-item"]:has(a), li:has(.dropdown)');
+            
+            for (const item of menuItems) {
+                try {
+                    // Hover to open dropdown
+                    await item.hover();
+                    await page.waitForTimeout(500);
+                    
+                    // Find links in the opened dropdown
+                    const dropdownLinks = await item.$$('[role="menuitem"] a, .dropdown-menu a, .submenu a, [class*="dropdown"] a');
+                    
+                    for (const link of dropdownLinks) {
+                        const href = await link.getAttribute('href');
+                        const text = await link.textContent();
+                        
+                        if (href && !href.startsWith('#')) {
+                            const fullUrl = href.startsWith('http') ? href : new URL(href, this.baseUrl).href;
+                            console.log(`      📂 Menu: ${text?.trim() || 'unknown'} -> ${fullUrl}`);
+                            await this.visitPage(page, fullUrl);
+                        }
+                    }
+                } catch (e) {
+                    // Ignore individual menu errors
+                }
+            }
+        } catch (e) {
+            console.log(`      ⚠️ Menu scan: ${e.message.split('\n')[0]}`);
+        }
+    }
+
+    buildSelectorMap(elements) {
+        const selectors = {};
+        for (const el of elements) {
+            if (!selectors[el.category]) {
+                selectors[el.category] = [];
+            }
+            selectors[el.category].push({
+                selector: el.selector,
+                text: el.text
+            });
+        }
+        return selectors;
+    }
+
     guessName(url, title) {
         const path = new URL(url).pathname;
         if (!path || path === '/') return 'Home';
@@ -149,21 +245,29 @@ class AutoFlow {
     }
 }
 
+function toTitleCase(str) {
+    return str.replace(/\b\w/g, l => l.toUpperCase());
+}
+
 // Usage
 const url = process.argv[2] || 'https://example.com';
-console.log(`🔍 AutoFlow - Discovering: ${url}\n`);
+console.log(`🔍 AutoFlow - Menu-Aware Discovery: ${url}\n`);
 
 new AutoFlow(url).discover().then(result => {
     console.log(`\n✅ Discovery complete!`);
     console.log(`   Pages found: ${result.pages.length}`);
-    console.log(`   Login required: ${result.requiresLogin}`);
     
-    console.log('\n📋 Pages discovered:');
-    result.pages.forEach((page, i) => {
-        console.log(`   ${i + 1}. ${page.name} (${page.url})`);
-    });
+    // Show summary
+    console.log(`\n📋 Summary:`);
+    for (const page of result.pages.slice(0, 10)) {
+        const categories = page.elements.map(e => e.category).filter((v, i, a) => a.indexOf(v) === i);
+        console.log(`   - ${page.name}: ${categories.join(', ')}`);
+    }
     
-    // Save to file
+    // Save results
     require('fs').writeFileSync('workflow.json', JSON.stringify(result, null, 2));
-    console.log('\n💾 Saved to workflow.json');
+    console.log(`\n💾 Saved to workflow.json`);
+}).catch(e => {
+    console.error(`❌ Error: ${e.message}`);
+    process.exit(1);
 });
