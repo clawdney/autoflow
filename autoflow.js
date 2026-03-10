@@ -9,6 +9,7 @@ class AutoFlow {
 
     async discover(maxPages = 30) {
         this.maxPages = maxPages;
+        if (!maxPages) this.maxPages = 50;
         const browser = await chromium.launch({ headless: true });
         const context = await browser.newContext();
         const page = await context.newPage();
@@ -187,13 +188,13 @@ class AutoFlow {
         // Visit pages from each menu group
         let count = 0;
         for (const [path, links] of Object.entries(menuGroups)) {
-            if (count >= 15) break; // Limit to avoid too many
+            if (count >= 25) break; // Increased limit
             if (path === '' || path === 'www' || path === 'store') continue;
             
             console.log(`\n   📂 Menu: /${path}/ (${links.length} links)`);
             
-            // Visit first few links from each menu
-            for (const link of links.slice(0, 8)) {
+            // Visit more links from each menu
+            for (const link of links.slice(0, 10)) {
                 if (this.pages.length >= this.maxPages) break;
                 if (link.href && !link.href.includes('#')) {
                     await this.visitPage(page, link.href);
