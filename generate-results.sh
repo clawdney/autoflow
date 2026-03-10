@@ -37,7 +37,7 @@ for p in pages:
     for cat, items in by_category.items():
         if items:
             items_html = ""
-            for item in items[:5]:
+            for item in items[:10]:
                 sel = html.escape(item.get('selector', ''))
                 txt = html.escape(item.get('text', '')[:40])
                 items_html += f'<span class="selector" title="{sel}">{txt}</span>'
