@@ -4,14 +4,23 @@
 <meta charset="UTF-8">
 <title>AutoFlow Results</title>
 <style>
-body{font-family:-apple-system,sans-serif;max-width:800px;margin:40px auto;padding:20px;background:#f5f5f5}
-.container{background:white;padding:30px;border-radius:12px}
-h1{color:#1a1a2e}
-.page{background:#f0f0f0;padding:16px;margin:12px 0;border-radius:8px}
-.page-name{font-weight:bold}
-.page-url{color:#666;word-break:break-all}
-.elements{color:#4f46e5;font-size:14px;margin-top:8px}
-.timestamp{color:#999;font-size:12px}
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;max-width:1200px;margin:0 auto;padding:20px;background:#f5f5f5}
+.container{background:white;padding:30px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
+h1{color:#1a1a2e;margin-bottom:5px}
+.timestamp{color:#999;font-size:14px;margin-bottom:20px}
+.url{background:#e8f4fd;padding:12px;border-radius:8px;margin-bottom:25px;font-size:16px}
+.url strong{color:#0066cc}
+.pages-header{font-size:24px;color:#333;margin:30px 0 15px;border-bottom:2px solid #eee;padding-bottom:10px}
+.page{background:#fff;border:1px solid #e0e0e0;border-radius:10px;margin-bottom:20px;overflow:hidden}
+.page-header{background:#f8f9fa;padding:15px 20px;border-bottom:1px solid #e0e0e0}
+.page-name{font-weight:bold;font-size:18px;color:#1a1a2e}
+.page-url{color:#666;font-size:13px;word-break:break-all;margin-top:5px}
+.page-elements{padding:15px 20px}
+.category{margin-bottom:12px}
+.cat-label{font-weight:600;color:#4f46e5;font-size:13px;margin-right:8px}
+.selector{display:inline-block;background:#f0f0f5;padding:4px 10px;border-radius:15px;font-size:12px;margin:2px 5px 2px 0;color:#333;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.selector:hover{background:#e0e0e5;cursor:pointer}
+.none{color:#999;font-style:italic}
 a{color:#4f46e5}
 </style>
 </head>
@@ -19,24 +28,387 @@ a{color:#4f46e5}
 <div class="container">
 <h1>🤖 AutoFlow Results</h1>
 <p class="timestamp">Last scan: $TIMESTAMP</p>
-<p><strong>URL:</strong> $URL</p>
-<h2>Discovered Pages</h2>
-<div class="page"><div class="page-name">Home</div><div class="page-url">https://brave.com</div><div class="elements">Elements: buttons, inputs, links, headings, cards, forms, images</div></div>
-<div class="page"><div class="page-name">Download</div><div class="page-url">https://brave.com/download/</div><div class="elements">Elements: buttons, inputs, links, headings, cards, images</div></div>
-<div class="page"><div class="page-name">Android</div><div class="page-url">https://brave.com/android/</div><div class="elements">Elements: buttons, links, headings, images</div></div>
-<div class="page"><div class="page-name">Games</div><div class="page-url">https://brave.com/store/games</div><div class="elements">Elements: buttons, inputs, links, headings, images</div></div>
-<div class="page"><div class="page-name">Ios</div><div class="page-url">https://brave.com/ios/</div><div class="elements">Elements: buttons, inputs, links, headings, cards, forms, images</div></div>
-<div class="page"><div class="page-name">Today</div><div class="page-url">https://apps.apple.com/us/iphone/today</div><div class="elements">Elements: buttons, inputs, links, headings, forms, images</div></div>
-<div class="page"><div class="page-name">Today</div><div class="page-url">https://apps.apple.com/us/ipad/today</div><div class="elements">Elements: buttons, inputs, links, headings, forms, images</div></div>
-<div class="page"><div class="page-name">Discover</div><div class="page-url">https://apps.apple.com/us/mac/discover</div><div class="elements">Elements: buttons, inputs, links, headings, cards, forms, images</div></div>
-<div class="page"><div class="page-name">Apps And Games</div><div class="page-url">https://apps.apple.com/us/vision/apps-and-games</div><div class="elements">Elements: buttons, inputs, links, headings, cards, forms, images</div></div>
-<div class="page"><div class="page-name">Apps And Games</div><div class="page-url">https://apps.apple.com/us/watch/apps-and-games</div><div class="elements">Elements: buttons, inputs, links, headings, cards, forms, images</div></div>
-<div class="page"><div class="page-name">Shields</div><div class="page-url">https://brave.com/shields/</div><div class="elements">Elements: buttons, inputs, links, headings, images</div></div>
-<div class="page"><div class="page-name">Firewall Vpn</div><div class="page-url">https://brave.com/firewall-vpn/</div><div class="elements">Elements: buttons, inputs, links, headings, cards, images</div></div>
-<div class="page"><div class="page-name">Apps</div><div class="page-url">https://brave.com/store/apps</div><div class="elements">Elements: buttons, inputs, links, headings, images</div></div>
-<div class="page"><div class="page-name">Movies</div><div class="page-url">https://brave.com/store/movies</div><div class="elements">Elements: buttons, inputs, links, headings, images</div></div>
-<div class="page"><div class="page-name">Books</div><div class="page-url">https://brave.com/store/books</div><div class="elements">Elements: buttons, inputs, links, headings, images</div></div>
-<div class="page"><div class="page-name">FAMILY</div><div class="page-url">https://brave.com/store/apps/category/FAMILY</div><div class="elements">Elements: buttons, inputs, links, headings, images</div></div>
+<div class="url"><strong>URL:</strong> $URL</div>
+<h2 class="pages-header">Discovered Pages (19)</h2>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">Home</div>
+        <div class="page-url">https://brave.com</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="#ls-url">Yes</span><span class="selector" title="#ls-dismiss">Dismiss</span><span class="selector" title="button.leoButton">vs
+        Brave vs Chrome</span><span class="selector" title="button.-js:hidden">vs
+        Brave vs Edge</span><span class="selector" title="button.-js:hidden">vs
+        Brave vs Firefox</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a.leoButton">Desktop</span><span class="selector" title="a.leoButton">Android</span><span class="selector" title="a.leoButton">iOS</span><span class="selector" title="a.leoButton">Shields adblocker</span><span class="selector" title="a.leoButton">VPN</span></div><div class="category"><span class="cat-label">selects:</span> <span class="selector" title="#language-switcher">Azərbaycanca
+            Bahasa Indonesia
+        </span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1.text-display-mobile-hero">The browser that puts you first</span><span class="selector" title="h4.text-h2">Private search</span><span class="selector" title="h4.text-h2">Built-in AI assistant</span><span class="selector" title="h4.text-h2">Powerful VPN</span><span class="selector" title="h2.text-display-mobile-h1">What does a user-first Web look like?</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="ul.block">Browser
+              
+              
+            </span><span class="selector" title="ul.list-none">DownloadsDesktop
+                          Android</span><span class="selector" title="ul.p-0">Desktop
+                          Android
+        </span><span class="selector" title="ul.p-0">Shields adblocker
+                          VPN
+  </span><span class="selector" title="ul.list-none">Try Brave Search
+                          Search </span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="header.site-header">Browser
+              
+              
+            </span><span class="selector" title="nav.site-nav">Browser
+              
+              
+            </span><span class="selector" title="header.grid">The browser that puts you first
+    
+    
+      Bl</span></div>
+    </div>
+</div>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">Home</div>
+        <div class="page-url">https://brave.com/</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="#ls-url">Yes</span><span class="selector" title="#ls-dismiss">Dismiss</span><span class="selector" title="button.leoButton">vs
+        Brave vs Chrome</span><span class="selector" title="button.-js:hidden">vs
+        Brave vs Edge</span><span class="selector" title="button.-js:hidden">vs
+        Brave vs Firefox</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a.leoButton">Desktop</span><span class="selector" title="a.leoButton">Android</span><span class="selector" title="a.leoButton">iOS</span><span class="selector" title="a.leoButton">Shields adblocker</span><span class="selector" title="a.leoButton">VPN</span></div><div class="category"><span class="cat-label">selects:</span> <span class="selector" title="#language-switcher">Azərbaycanca
+            Bahasa Indonesia
+        </span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1.text-display-mobile-hero">The browser that puts you first</span><span class="selector" title="h4.text-h2">Private search</span><span class="selector" title="h4.text-h2">Built-in AI assistant</span><span class="selector" title="h4.text-h2">Powerful VPN</span><span class="selector" title="h2.text-display-mobile-h1">What does a user-first Web look like?</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="ul.block">Browser
+              
+              
+            </span><span class="selector" title="ul.list-none">DownloadsDesktop
+                          Android</span><span class="selector" title="ul.p-0">Desktop
+                          Android
+        </span><span class="selector" title="ul.p-0">Shields adblocker
+                          VPN
+  </span><span class="selector" title="ul.list-none">Try Brave Search
+                          Search </span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="header.site-header">Browser
+              
+              
+            </span><span class="selector" title="nav.site-nav">Browser
+              
+              
+            </span><span class="selector" title="header.grid">The browser that puts you first
+    
+    
+      Bl</span></div>
+    </div>
+</div>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">Download</div>
+        <div class="page-url">https://brave.com/download/</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="#ls-url">Yes</span><span class="selector" title="#ls-dismiss">Dismiss</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a.leoButton">Desktop</span><span class="selector" title="a.leoButton">Android</span><span class="selector" title="a.leoButton">iOS</span><span class="selector" title="a.leoButton">Shields adblocker</span><span class="selector" title="a.leoButton">VPN</span></div><div class="category"><span class="cat-label">selects:</span> <span class="selector" title="#language-switcher">Azərbaycanca
+            Bahasa Indonesia
+        </span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1.z-10">Brave Browser Download</span><span class="selector" title="h2.text-display-desktop-h4">Brave Browser for mobile</span><span class="selector" title="h2.text-h4">Interested in trying other versions of Brave?</span><span class="selector" title="h4.site-footer__heading">User resources</span><span class="selector" title="h4.site-footer__heading">Privacy policy</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="ul.block">Browser
+              
+              
+            </span><span class="selector" title="ul.list-none">DownloadsDesktop
+                          Android</span><span class="selector" title="ul.p-0">Desktop
+                          Android
+        </span><span class="selector" title="ul.p-0">Shields adblocker
+                          VPN
+  </span><span class="selector" title="ul.list-none">Try Brave Search
+                          Search </span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="header.site-header">Browser
+              
+              
+            </span><span class="selector" title="nav.site-nav">Browser
+              
+              
+            </span><span class="selector" title="header.hero">Brave Browser Download
+    
+    
+      
+      
+   </span></div>
+    </div>
+</div>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">Android</div>
+        <div class="page-url">https://brave.com/android/</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="#11">Games</span><span class="selector" title="#1">Apps</span><span class="selector" title="#9">Movies &amp; TV</span><span class="selector" title="#5">Books</span><span class="selector" title="#13">Kids</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a.uEz1ib">Games</span><span class="selector" title="a.uEz1ib">Apps</span><span class="selector" title="a.uEz1ib">Movies &amp; TV</span><span class="selector" title="a.uEz1ib">Books</span><span class="selector" title="a.uEz1ib">Kids</span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1">Brave Private Web Browser, VPN</span><span class="selector" title="h2.XfZNbf">About this app</span><span class="selector" title="h2.XfZNbf">Data safety</span><span class="selector" title="h2.XfZNbf">Ratings and reviews</span><span class="selector" title="h2.XfZNbf">What’s new</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="ul.VfPpkd-StrnGf-rymPhb">Sign in with Googleplay_appsLibrary &amp; devicespayme</span><span class="selector" title="ul.VfPpkd-StrnGf-rymPhb">Flag inappropriate</span><span class="selector" title="ul.VfPpkd-StrnGf-rymPhb">Flag inappropriate</span><span class="selector" title="ul.VfPpkd-StrnGf-rymPhb">Flag inappropriate</span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="nav.yyaGpb">GamesAppsMovies &amp; TVBooksKids</span><span class="selector" title="header.S3WLMd">google_logo PlayGamesAppsMovies &amp; TVBooksKidsnones</span><span class="selector" title="nav.oPjgQb">google_logo PlayGamesAppsMovies &amp; TVBooksKidsnones</span><span class="selector" title="div.P8HBFd">GamesAppsMovies &amp; TVBooksKidsnone</span><span class="selector" title="nav.yyaGpb">GamesAppsMovies &amp; TVBooksKids</span></div>
+    </div>
+</div>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">Games</div>
+        <div class="page-url">https://brave.com/store/games</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="#ls-url">Yes</span><span class="selector" title="#ls-dismiss">Dismiss</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a.leoButton">Desktop</span><span class="selector" title="a.leoButton">Android</span><span class="selector" title="a.leoButton">iOS</span><span class="selector" title="a.leoButton">Shields adblocker</span><span class="selector" title="a.leoButton">VPN</span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1.text-7xl">Hmm…</span><span class="selector" title="h2.text-3.5xl">We can’t find the page you’re looking for right no</span><span class="selector" title="h4.site-footer__heading">User resources</span><span class="selector" title="h4.site-footer__heading">Privacy policy</span><span class="selector" title="h4.site-footer__heading">Blogs</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="ul.list-none">Browser
+                      
+                   </span><span class="selector" title="ul.list-none">DownloadsDesktopAndroidiOS
+                       </span><span class="selector" title="ul.p-0">DesktopAndroidiOS</span><span class="selector" title="ul.p-0">Shields adblockerVPNPrivacy featuresPremium servic</span><span class="selector" title="ul.list-none">Try Brave SearchSearch featuresWeb Discovery Proje</span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="header.site-header">Browser
+                      
+                   </span><span class="selector" title="nav.site-nav">Browser
+                      
+                   </span></div>
+    </div>
+</div>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">Ios</div>
+        <div class="page-url">https://brave.com/ios/</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="button.menu-trigger">for iPhone</span><span class="selector" title="a.navigation-item__link">Today</span><span class="selector" title="a.navigation-item__link">Games</span><span class="selector" title="a.navigation-item__link">Apps</span><span class="selector" title="a.navigation-item__link">Arcade</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a">iPhone</span><span class="selector" title="a">iPad</span><span class="selector" title="a">Mac</span><span class="selector" title="a">Vision</span><span class="selector" title="a">Watch</span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1.svelte-1bm25t">Brave Browser &amp; Search Engine</span><span class="selector" title="h2.subtitle">Adblock, Web Privacy, VPN</span><span class="selector" title="h2.shelf-title">Ratings &amp; Reviews</span><span class="selector" title="#review-9965235212-title">Help please</span><span class="selector" title="h1.title">Help please</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="#e0f816ac-c038-4b08-b34b-555565ecbf89">iPhone   iPad   Mac   Vision   Watch   TV</span><span class="selector" title="ul.navigation-items__list">Today  Games  Apps  Arcade</span><span class="selector" title="ul.navigation-items__list">Categories  Photo &amp; Video  Health &amp; Fitness  Produ</span><span class="selector" title="ul.shelf-grid__list">573K Ratings  4.8        Ages 16+ Years Category  </span><span class="selector" title="ul.grid">4.8 out of 5            573K Ratings</span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="nav.navigation">for iPhone   iPhone   iPad   Mac   Vision   Watch </span><span class="selector" title="nav.svelte-x02ig6">for iPhone   iPhone   iPad   Mac   Vision   Watch </span></div>
+    </div>
+</div>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">Shields</div>
+        <div class="page-url">https://brave.com/shields/</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="#ls-url">Yes</span><span class="selector" title="#ls-dismiss">Dismiss</span><span class="selector" title="button">How exactly does Brave block trackers, scripts, an</span><span class="selector" title="button">How does fingerprint randomization work?</span><span class="selector" title="button">What’s different about the way Brave blocks third-</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a.leoButton">Desktop</span><span class="selector" title="a.leoButton">Android</span><span class="selector" title="a.leoButton">iOS</span><span class="selector" title="a.leoButton">Shields adblocker</span><span class="selector" title="a.leoButton">VPN</span></div><div class="category"><span class="cat-label">selects:</span> <span class="selector" title="#language-switcher">Català
+            English
+            Español
+   </span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1.text-ds-h2">Brave Shields</span><span class="selector" title="h2.text-light-01">Protection against online tracking</span><span class="selector" title="h2.text-light-01">Default protection, no set up required</span><span class="selector" title="h2.text-light-01">See Shields in action</span><span class="selector" title="h2.text-light-01">Privacy you can control</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="ul.list-none">Browser
+                      
+                   </span><span class="selector" title="ul.list-none">DownloadsDesktopAndroidiOS
+                       </span><span class="selector" title="ul.p-0">DesktopAndroidiOS</span><span class="selector" title="ul.p-0">Shields adblockerVPNPrivacy featuresPremium servic</span><span class="selector" title="ul.list-none">Try Brave SearchSearch featuresWeb Discovery Proje</span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="header.site-header">Browser
+                      
+                   </span><span class="selector" title="nav.site-nav">Browser
+                      
+                   </span></div>
+    </div>
+</div>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">Firewall Vpn</div>
+        <div class="page-url">https://brave.com/firewall-vpn/</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="#ls-url">Yes</span><span class="selector" title="#ls-dismiss">Dismiss</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a.leoButton">Desktop</span><span class="selector" title="a.leoButton">Android</span><span class="selector" title="a.leoButton">iOS</span><span class="selector" title="a.leoButton">Shields adblocker</span><span class="selector" title="a.leoButton">VPN</span></div><div class="category"><span class="cat-label">selects:</span> <span class="selector" title="#language-switcher">Bahasa Indonesia
+            Català
+            De</span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1.z-10">Brave VPN: The secure, fast VPN, right in your bro</span><span class="selector" title="h2.col-span-2">Protect yourself from online threats</span><span class="selector" title="h2.col-span-2">Access your favorite content worldwide</span><span class="selector" title="h2.text-display-h3">Try Brave Firewall + VPN now</span><span class="selector" title="h2.pb-8">FAQs about Brave VPN</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="ul.block">Browser
+              
+              
+            </span><span class="selector" title="ul.list-none">DownloadsDesktop
+                          Android</span><span class="selector" title="ul.p-0">Desktop
+                          Android
+        </span><span class="selector" title="ul.p-0">Shields adblocker
+                          VPN
+  </span><span class="selector" title="ul.list-none">Try Brave Search
+                          Search </span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="header.site-header">Browser
+              
+              
+            </span><span class="selector" title="nav.site-nav">Browser
+              
+              
+            </span><span class="selector" title="header.hero">Brave VPN: The secure, fast VPN, right in your bro</span></div>
+    </div>
+</div>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">Privacy Features</div>
+        <div class="page-url">https://brave.com/privacy-features/</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="#ls-url">Yes</span><span class="selector" title="#ls-dismiss">Dismiss</span><span class="selector" title="button">Chromium customizations</span><span class="selector" title="button">Client-side encryption for Brave Sync</span><span class="selector" title="button">DeAMPing</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a.leoButton">Desktop</span><span class="selector" title="a.leoButton">Android</span><span class="selector" title="a.leoButton">iOS</span><span class="selector" title="a.leoButton">Shields adblocker</span><span class="selector" title="a.leoButton">VPN</span></div><div class="category"><span class="cat-label">selects:</span> <span class="selector" title="#language-switcher">Català
+            English
+            Español
+   </span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1.hero__title">Advanced privacy</span><span class="selector" title="h2.font-semibold">Privacy by default</span><span class="selector" title="h2.font-semibold">Brave Shields</span><span class="selector" title="h2.font-semibold">Advanced protections</span><span class="selector" title="h2.font-semibold">Policies &amp; practices</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="ul.list-none">Browser
+                      
+                   </span><span class="selector" title="ul.list-none">DownloadsDesktopAndroidiOS
+                       </span><span class="selector" title="ul.p-0">DesktopAndroidiOS</span><span class="selector" title="ul.p-0">Shields adblockerVPNPrivacy featuresPremium servic</span><span class="selector" title="ul.list-none">Try Brave SearchSearch featuresWeb Discovery Proje</span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="header.site-header">Browser
+                      
+                   </span><span class="selector" title="nav.site-nav">Browser
+                      
+                   </span></div>
+    </div>
+</div>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">Premium</div>
+        <div class="page-url">https://brave.com/premium/</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="#ls-url">Yes</span><span class="selector" title="#ls-dismiss">Dismiss</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a.leoButton">Desktop</span><span class="selector" title="a.leoButton">Android</span><span class="selector" title="a.leoButton">iOS</span><span class="selector" title="a.leoButton">Shields adblocker</span><span class="selector" title="a.leoButton">VPN</span></div><div class="category"><span class="cat-label">selects:</span> <span class="selector" title="#language-switcher">English</span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1.text-display-desktop-h3">Brave premium</span><span class="selector" title="h2.text-display-mobile-h1">Brave VPN</span><span class="selector" title="h2.text-display-mobile-h1">Search premium</span><span class="selector" title="h2.text-display-mobile-h1">Leo AI premium</span><span class="selector" title="h2.text-display-mobile-h1">Talk premium</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="ul.block">Browser
+              
+              
+            </span><span class="selector" title="ul.list-none">DownloadsDesktop
+                          Android</span><span class="selector" title="ul.p-0">Desktop
+                          Android
+        </span><span class="selector" title="ul.p-0">Shields adblocker
+                          VPN
+  </span><span class="selector" title="ul.list-none">Try Brave Search
+                          Search </span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="header.site-header">Browser
+              
+              
+            </span><span class="selector" title="nav.site-nav">Browser
+              
+              
+            </span><span class="selector" title="header.flex">Brave premium
+    
+    
+      Support the Brave mi</span></div>
+    </div>
+</div>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">Features</div>
+        <div class="page-url">https://brave.com/features/</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="#ls-url">Yes</span><span class="selector" title="#ls-dismiss">Dismiss</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a.leoButton">Desktop</span><span class="selector" title="a.leoButton">Android</span><span class="selector" title="a.leoButton">iOS</span><span class="selector" title="a.leoButton">Shields adblocker</span><span class="selector" title="a.leoButton">VPN</span></div><div class="category"><span class="cat-label">selects:</span> <span class="selector" title="#language-switcher">Bahasa Indonesia
+            Català
+            De</span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1.uppercase">A new way to browse.</span><span class="selector" title="h3.text-light-01">Shields</span><span class="selector" title="h3.text-light-01">Brave Search</span><span class="selector" title="h3.text-light-01">Rewards / BAT</span><span class="selector" title="h3.text-light-01">Wallet</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="ul.list-none">Browser
+                      
+                   </span><span class="selector" title="ul.list-none">DownloadsDesktopAndroidiOS
+                       </span><span class="selector" title="ul.p-0">DesktopAndroidiOS</span><span class="selector" title="ul.p-0">Shields adblockerVPNPrivacy featuresPremium servic</span><span class="selector" title="ul.list-none">Try Brave SearchSearch featuresWeb Discovery Proje</span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="header.site-header">Browser
+                      
+                   </span><span class="selector" title="nav.site-nav">Browser
+                      
+                   </span></div>
+    </div>
+</div>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">Compare</div>
+        <div class="page-url">https://brave.com/compare/</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="#ls-url">Yes</span><span class="selector" title="#ls-dismiss">Dismiss</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a.leoButton">Desktop</span><span class="selector" title="a.leoButton">Android</span><span class="selector" title="a.leoButton">iOS</span><span class="selector" title="a.leoButton">Shields adblocker</span><span class="selector" title="a.leoButton">VPN</span></div><div class="category"><span class="cat-label">selects:</span> <span class="selector" title="#language-switcher">Azərbaycanca
+            Bahasa Indonesia
+        </span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1.z-10">See how Brave stacks up against the competition.</span><span class="selector" title="h2.text-display-mobile-h2">Which option is right for you?</span><span class="selector" title="h3.pb-4">How we compare browsers &amp; search engines:</span><span class="selector" title="h2.pb-4">FAQ</span><span class="selector" title="h4.site-footer__heading">User resources</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="ul.block">Browser
+              
+              
+            </span><span class="selector" title="ul.list-none">DownloadsDesktop
+                          Android</span><span class="selector" title="ul.p-0">Desktop
+                          Android
+        </span><span class="selector" title="ul.p-0">Shields adblocker
+                          VPN
+  </span><span class="selector" title="ul.list-none">Try Brave Search
+                          Search </span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="header.site-header">Browser
+              
+              
+            </span><span class="selector" title="nav.site-nav">Browser
+              
+              
+            </span><span class="selector" title="header.full-bleed">Brave vs.
+      
+      
+        See how Brave stac</span></div>
+    </div>
+</div>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">Apps</div>
+        <div class="page-url">https://brave.com/store/apps</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="#ls-url">Yes</span><span class="selector" title="#ls-dismiss">Dismiss</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a.leoButton">Desktop</span><span class="selector" title="a.leoButton">Android</span><span class="selector" title="a.leoButton">iOS</span><span class="selector" title="a.leoButton">Shields adblocker</span><span class="selector" title="a.leoButton">VPN</span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1.text-7xl">Hmm…</span><span class="selector" title="h2.text-3.5xl">We can’t find the page you’re looking for right no</span><span class="selector" title="h4.site-footer__heading">User resources</span><span class="selector" title="h4.site-footer__heading">Privacy policy</span><span class="selector" title="h4.site-footer__heading">Blogs</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="ul.list-none">Browser
+                      
+                   </span><span class="selector" title="ul.list-none">DownloadsDesktopAndroidiOS
+                       </span><span class="selector" title="ul.p-0">DesktopAndroidiOS</span><span class="selector" title="ul.p-0">Shields adblockerVPNPrivacy featuresPremium servic</span><span class="selector" title="ul.list-none">Try Brave SearchSearch featuresWeb Discovery Proje</span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="header.site-header">Browser
+                      
+                   </span><span class="selector" title="nav.site-nav">Browser
+                      
+                   </span></div>
+    </div>
+</div>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">Movies</div>
+        <div class="page-url">https://brave.com/store/movies</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="#ls-url">Yes</span><span class="selector" title="#ls-dismiss">Dismiss</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a.leoButton">Desktop</span><span class="selector" title="a.leoButton">Android</span><span class="selector" title="a.leoButton">iOS</span><span class="selector" title="a.leoButton">Shields adblocker</span><span class="selector" title="a.leoButton">VPN</span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1.text-7xl">Hmm…</span><span class="selector" title="h2.text-3.5xl">We can’t find the page you’re looking for right no</span><span class="selector" title="h4.site-footer__heading">User resources</span><span class="selector" title="h4.site-footer__heading">Privacy policy</span><span class="selector" title="h4.site-footer__heading">Blogs</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="ul.list-none">Browser
+                      
+                   </span><span class="selector" title="ul.list-none">DownloadsDesktopAndroidiOS
+                       </span><span class="selector" title="ul.p-0">DesktopAndroidiOS</span><span class="selector" title="ul.p-0">Shields adblockerVPNPrivacy featuresPremium servic</span><span class="selector" title="ul.list-none">Try Brave SearchSearch featuresWeb Discovery Proje</span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="header.site-header">Browser
+                      
+                   </span><span class="selector" title="nav.site-nav">Browser
+                      
+                   </span></div>
+    </div>
+</div>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">Books</div>
+        <div class="page-url">https://brave.com/store/books</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="#ls-url">Yes</span><span class="selector" title="#ls-dismiss">Dismiss</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a.leoButton">Desktop</span><span class="selector" title="a.leoButton">Android</span><span class="selector" title="a.leoButton">iOS</span><span class="selector" title="a.leoButton">Shields adblocker</span><span class="selector" title="a.leoButton">VPN</span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1.text-7xl">Hmm…</span><span class="selector" title="h2.text-3.5xl">We can’t find the page you’re looking for right no</span><span class="selector" title="h4.site-footer__heading">User resources</span><span class="selector" title="h4.site-footer__heading">Privacy policy</span><span class="selector" title="h4.site-footer__heading">Blogs</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="ul.list-none">Browser
+                      
+                   </span><span class="selector" title="ul.list-none">DownloadsDesktopAndroidiOS
+                       </span><span class="selector" title="ul.p-0">DesktopAndroidiOS</span><span class="selector" title="ul.p-0">Shields adblockerVPNPrivacy featuresPremium servic</span><span class="selector" title="ul.list-none">Try Brave SearchSearch featuresWeb Discovery Proje</span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="header.site-header">Browser
+                      
+                   </span><span class="selector" title="nav.site-nav">Browser
+                      
+                   </span></div>
+    </div>
+</div>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">FAMILY</div>
+        <div class="page-url">https://brave.com/store/apps/category/FAMILY</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="#ls-url">Yes</span><span class="selector" title="#ls-dismiss">Dismiss</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a.leoButton">Desktop</span><span class="selector" title="a.leoButton">Android</span><span class="selector" title="a.leoButton">iOS</span><span class="selector" title="a.leoButton">Shields adblocker</span><span class="selector" title="a.leoButton">VPN</span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1.text-7xl">Hmm…</span><span class="selector" title="h2.text-3.5xl">We can’t find the page you’re looking for right no</span><span class="selector" title="h4.site-footer__heading">User resources</span><span class="selector" title="h4.site-footer__heading">Privacy policy</span><span class="selector" title="h4.site-footer__heading">Blogs</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="ul.list-none">Browser
+                      
+                   </span><span class="selector" title="ul.list-none">DownloadsDesktopAndroidiOS
+                       </span><span class="selector" title="ul.p-0">DesktopAndroidiOS</span><span class="selector" title="ul.p-0">Shields adblockerVPNPrivacy featuresPremium servic</span><span class="selector" title="ul.list-none">Try Brave SearchSearch featuresWeb Discovery Proje</span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="header.site-header">Browser
+                      
+                   </span><span class="selector" title="nav.site-nav">Browser
+                      
+                   </span></div>
+    </div>
+</div>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">Datasafety</div>
+        <div class="page-url">https://brave.com/store/apps/datasafety?id=com.brave.browser</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="#ls-url">Yes</span><span class="selector" title="#ls-dismiss">Dismiss</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a.leoButton">Desktop</span><span class="selector" title="a.leoButton">Android</span><span class="selector" title="a.leoButton">iOS</span><span class="selector" title="a.leoButton">Shields adblocker</span><span class="selector" title="a.leoButton">VPN</span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1.text-7xl">Hmm…</span><span class="selector" title="h2.text-3.5xl">We can’t find the page you’re looking for right no</span><span class="selector" title="h4.site-footer__heading">User resources</span><span class="selector" title="h4.site-footer__heading">Privacy policy</span><span class="selector" title="h4.site-footer__heading">Blogs</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="ul.list-none">Browser
+                      
+                   </span><span class="selector" title="ul.list-none">DownloadsDesktopAndroidiOS
+                       </span><span class="selector" title="ul.p-0">DesktopAndroidiOS</span><span class="selector" title="ul.p-0">Shields adblockerVPNPrivacy featuresPremium servic</span><span class="selector" title="ul.list-none">Try Brave SearchSearch featuresWeb Discovery Proje</span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="header.site-header">Browser
+                      
+                   </span><span class="selector" title="nav.site-nav">Browser
+                      
+                   </span></div>
+    </div>
+</div>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">Dev</div>
+        <div class="page-url">https://brave.com/store/apps/dev?id=7093250338202488249</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="#ls-url">Yes</span><span class="selector" title="#ls-dismiss">Dismiss</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a.leoButton">Desktop</span><span class="selector" title="a.leoButton">Android</span><span class="selector" title="a.leoButton">iOS</span><span class="selector" title="a.leoButton">Shields adblocker</span><span class="selector" title="a.leoButton">VPN</span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1.text-7xl">Hmm…</span><span class="selector" title="h2.text-3.5xl">We can’t find the page you’re looking for right no</span><span class="selector" title="h4.site-footer__heading">User resources</span><span class="selector" title="h4.site-footer__heading">Privacy policy</span><span class="selector" title="h4.site-footer__heading">Blogs</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="ul.list-none">Browser
+                      
+                   </span><span class="selector" title="ul.list-none">DownloadsDesktopAndroidiOS
+                       </span><span class="selector" title="ul.p-0">DesktopAndroidiOS</span><span class="selector" title="ul.p-0">Shields adblockerVPNPrivacy featuresPremium servic</span><span class="selector" title="ul.list-none">Try Brave SearchSearch featuresWeb Discovery Proje</span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="header.site-header">Browser
+                      
+                   </span><span class="selector" title="nav.site-nav">Browser
+                      
+                   </span></div>
+    </div>
+</div>
+<div class="page">
+    <div class="page-header">
+        <div class="page-name">Cluster</div>
+        <div class="page-url">https://brave.com/store/apps/collection/cluster?gsr=Sm9qGEJnUmZCWVYrQ0VwZW85cTlIemV6Z3c9PcICTwoVChFjb20uYnJhdmUuYnJvd3NlchAHGAgwATgASioIARAAGh5CcmF2ZSBQcml2YXRlIFdlYiBCcm93c2VyLCBWUE4gACgAMABQAFgBYACwEgA%3D:S:ANO1ljLryZg</div>
+    </div>
+    <div class="page-elements">
+        <div class="category"><span class="cat-label">buttons:</span> <span class="selector" title="#ls-url">Yes</span><span class="selector" title="#ls-dismiss">Dismiss</span></div><div class="category"><span class="cat-label">links:</span> <span class="selector" title="a.leoButton">Desktop</span><span class="selector" title="a.leoButton">Android</span><span class="selector" title="a.leoButton">iOS</span><span class="selector" title="a.leoButton">Shields adblocker</span><span class="selector" title="a.leoButton">VPN</span></div><div class="category"><span class="cat-label">headings:</span> <span class="selector" title="h1.text-7xl">Hmm…</span><span class="selector" title="h2.text-3.5xl">We can’t find the page you’re looking for right no</span><span class="selector" title="h4.site-footer__heading">User resources</span><span class="selector" title="h4.site-footer__heading">Privacy policy</span><span class="selector" title="h4.site-footer__heading">Blogs</span></div><div class="category"><span class="cat-label">lists:</span> <span class="selector" title="ul.list-none">Browser
+                      
+                   </span><span class="selector" title="ul.list-none">DownloadsDesktopAndroidiOS
+                       </span><span class="selector" title="ul.p-0">DesktopAndroidiOS</span><span class="selector" title="ul.p-0">Shields adblockerVPNPrivacy featuresPremium servic</span><span class="selector" title="ul.list-none">Try Brave SearchSearch featuresWeb Discovery Proje</span></div><div class="category"><span class="cat-label">menus:</span> <span class="selector" title="header.site-header">Browser
+                      
+                   </span><span class="selector" title="nav.site-nav">Browser
+                      
+                   </span></div>
+    </div>
+</div>
 
 <p><a href="../">← Back to AutoFlow</a></p>
 </div>
