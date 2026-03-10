@@ -5,34 +5,31 @@ class AutoFlow {
         this.baseUrl = url;
         this.visited = new Set();
         this.pages = [];
+        this.maxPages = 50;
     }
 
-    async discover(maxPages = 50) {
-        this.maxPages = maxPages || 50;
+    async discover() {
         const browser = await chromium.launch({ headless: true });
         const context = await browser.newContext();
         const page = await context.newPage();
 
-        console.log(`🔍 AutoFlow - Menu Scanner: ${this.baseUrl}\n`);
+        console.log(`🔍 AutoFlow: ${this.baseUrl}\n`);
         
-        // Visit home page first
+        // Visit home
         await this.visitPage(page, this.baseUrl);
         
-        // Find and scan ALL top-level menus
-        await this.scanTopLevelMenus(page);
+        // Parse menu from DOM
+        await this.parseMenuFromDOM(page);
 
         await browser.close();
         
-        return {
-            baseUrl: this.baseUrl,
-            pages: this.pages
-        };
+        return { baseUrl: this.baseUrl, pages: this.pages };
     }
 
     async visitPage(page, url) {
         if (this.visited.has(url) || this.pages.length >= this.maxPages) return;
-        
         this.visited.add(url);
+        
         console.log(`   📄 [${this.pages.length + 1}] ${url}`);
         
         try {
@@ -40,14 +37,12 @@ class AutoFlow {
             await page.waitForTimeout(500);
             
             const elements = await this.extractElements(page);
-            
             this.pages.push({
                 url: url,
-                name: this.guessName(url, await page.title()),
+                name: this.guessName(url),
                 title: await page.title(),
                 elements: elements
             });
-            
         } catch (e) {
             console.log(`      ⚠️ ${e.message.split('\n')[0]}`);
         }
@@ -56,7 +51,7 @@ class AutoFlow {
     async extractElements(page) {
         const categories = [
             { name: 'buttons', sel: 'button, [role="button"], input[type="submit"]' },
-            { name: 'inputs', sel: 'input[type="text"], input[type="email"], input[type="search"]' },
+            { name: 'inputs', sel: 'input[type="text"], input[type="email"], input[type="search"], input[type="password"]' },
             { name: 'links', sel: 'a[href]' },
             { name: 'headings', sel: 'h1, h2, h3' },
             { name: 'forms', sel: 'form' }
@@ -70,11 +65,7 @@ class AutoFlow {
                     const text = await el.textContent().catch(() => '');
                     const selector = await this.getSelector(el);
                     if (text && text.trim().length > 0) {
-                        elements.push({
-                            category: cat.name,
-                            text: text.trim().substring(0, 80),
-                            selector: selector
-                        });
+                        elements.push({ category: cat.name, text: text.trim().substring(0, 80), selector });
                     }
                 }
             } catch (e) {}
@@ -95,80 +86,84 @@ class AutoFlow {
         } catch (e) { return 'el'; }
     }
 
-    async scanTopLevelMenus(page) {
-        console.log(`\n🗺️  Finding ALL top-level menu items...\n`);
+    async parseMenuFromDOM(page) {
+        console.log(`\n🗺️  Parsing menu from DOM...\n`);
         
-        // First, get ALL unique paths from the site
-        const allLinks = await page.$$eval('a[href]', links => 
-            links.filter(l => l.href.includes('brave.com') && !l.href.includes('#'))
-                 .map(l => ({ href: l.href, text: l.textContent?.trim() || '' }))
-        );
+        // Find all navigation menus
+        const menuStructure = await page.evaluate(() => {
+            const results = { topLevel: [], allMenus: [] };
+            
+            // Find main navigation
+            const navs = document.querySelectorAll('nav, [role="navigation"], header');
+            
+            navs.forEach(nav => {
+                // Get direct child <ul> or <nav> descendant <ul>
+                const uls = nav.querySelectorAll(':scope > ul, :scope > div > ul, nav > ul > li');
+                
+                uls.forEach((ul, ulIdx) => {
+                    const lis = ul.querySelectorAll(':scope > li');
+                    
+                    lis.forEach((li, liIdx) => {
+                        // Get the menu item text
+                        const link = li.querySelector('a, button, span');
+                        const text = link ? link.textContent?.trim() : '';
+                        
+                        if (text && text.length > 0 && text.length < 40) {
+                            // Check for dropdown (submenu)
+                            const submenu = li.querySelector('ul, .dropdown-menu, [role="menu"], .menu-dropdown');
+                            const subItems = submenu ? Array.from(submenu.querySelectorAll('a')).map(a => ({
+                                text: a.textContent?.trim() || '',
+                                href: a.href || ''
+                            })).filter(i => i.text && i.href) : [];
+                            
+                            results.topLevel.push({
+                                text: text,
+                                hasDropdown: !!submenu,
+                                subItems: subItems
+                            });
+                        }
+                    });
+                });
+            });
+            
+            return results;
+        });
 
-        // Extract unique top-level paths (first path segment after domain)
-        const pathCounts = {};
-        for (const link of allLinks) {
-            try {
-                const url = new URL(link.href);
-                const path = url.pathname.split('/')[1] || '';
-                if (path && path.length < 30 && !path.includes('?')) {
-                    if (!pathCounts[path]) pathCounts[path] = { count: 0, links: [] };
-                    pathCounts[path].count++;
-                    pathCounts[path].links.push(link);
+        console.log(`   Found ${menuStructure.topLevel.length} top-level menu items\n`);
+        
+        // Display what was found
+        for (let i = 0; i < menuStructure.topLevel.length; i++) {
+            const item = menuStructure.topLevel[i];
+            console.log(`   ${i + 1}. ${item.text} (${item.hasDropdown ? item.subItems.length + ' sub-items' : 'no dropdown'})`);
+            
+            // Visit each second-level page
+            if (item.subItems && item.subItems.length > 0) {
+                for (const subItem of item.subItems.slice(0, 5)) {
+                    if (subItem.href && subItem.href.includes(this.baseUrl)) {
+                        await this.visitPage(page, subItem.href);
+                    }
                 }
-            } catch (e) {}
-        }
-
-        // Sort by frequency and take top menu paths
-        const menuPaths = Object.entries(pathCounts)
-            .sort((a, b) => b[1].count - a[1].count)
-            .filter(([path]) => path !== '' && !path.includes('.'))
-            .slice(0, 8); // Top 8 menu paths
-
-        console.log(`   Found ${menuPaths.length} menu sections:\n`);
-        
-        // Visit pages from each menu path
-        let menuNum = 1;
-        for (const [path, data] of menuPaths) {
-            if (this.pages.length >= this.maxPages) break;
-            
-            console.log(`   ${menuNum}. /${path}/ (${data.count} links)`);
-            
-            // Get unique URLs from this path
-            const uniqueUrls = [...new Set(data.links.map(l => l.href))].slice(0, 6);
-            
-            for (const linkUrl of uniqueUrls) {
-                if (this.pages.length >= this.maxPages) break;
-                await this.visitPage(page, linkUrl);
             }
-            menuNum++;
         }
 
-        console.log(`\n✅ Total pages scanned: ${this.pages.length}`);
+        console.log(`\n✅ Total: ${this.pages.length} pages`);
     }
 
-    guessName(url, title) {
+    guessName(url) {
         const path = new URL(url).pathname;
         if (!path || path === '/') return 'Home';
         const parts = path.split('/').filter(p => p);
-        if (parts.length > 0) {
-            return toTitleCase(parts[parts.length - 1].replace(/[-_]/g, ' ').replace(/\.\w+$/, ''));
-        }
-        return title.substring(0, 30);
+        return parts[parts.length - 1].replace(/[-_]/g, ' ').replace(/\.\w+$/, '').replace(/\b\w/g, l => l.toUpperCase());
     }
 }
 
-function toTitleCase(str) {
-    return str.replace(/\b\w/g, l => l.toUpperCase());
-}
-
 const url = process.argv[2] || 'https://example.com';
-console.log(`🔍 AutoFlow - Full Menu Scanner\n`);
+console.log(`🔍 AutoFlow\n`);
 
 new AutoFlow(url).discover().then(result => {
     console.log(`\n✅ Done! ${result.pages.length} pages`);
     require('fs').writeFileSync('workflow.json', JSON.stringify(result, null, 2));
-    console.log(`💾 Saved to workflow.json`);
 }).catch(e => {
-    console.error(`❌ Error: ${e.message}`);
+    console.error(`❌ ${e.message}`);
     process.exit(1);
 });
