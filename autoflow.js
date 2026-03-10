@@ -7,27 +7,25 @@ class AutoFlow {
         this.pages = [];
     }
 
-    async discover(maxPages = 30) {
-        this.maxPages = maxPages;
-        if (!maxPages) this.maxPages = 50;
+    async discover(maxPages = 50) {
+        this.maxPages = maxPages || 50;
         const browser = await chromium.launch({ headless: true });
         const context = await browser.newContext();
         const page = await context.newPage();
 
         console.log(`🔍 AutoFlow - Menu Scanner: ${this.baseUrl}\n`);
         
-        // Start with the base URL
+        // Visit home page first
         await this.visitPage(page, this.baseUrl);
         
-        // Scan all menus
-        await this.scanAllMenus(page);
+        // Find and scan ALL top-level menus
+        await this.scanTopLevelMenus(page);
 
         await browser.close();
         
         return {
             baseUrl: this.baseUrl,
-            pages: this.pages,
-            menuScanned: true
+            pages: this.pages
         };
     }
 
@@ -35,23 +33,20 @@ class AutoFlow {
         if (this.visited.has(url) || this.pages.length >= this.maxPages) return;
         
         this.visited.add(url);
-        console.log(`   📄 [${this.pages.length + 1}] Visiting: ${url}`);
+        console.log(`   📄 [${this.pages.length + 1}] ${url}`);
         
         try {
             await page.goto(url, { waitUntil: 'networkidle', timeout: 15000 });
-            await page.waitForTimeout(800);
+            await page.waitForTimeout(500);
             
-            // Extract elements
             const elements = await this.extractElements(page);
             
-            const pageData = {
+            this.pages.push({
                 url: url,
                 name: this.guessName(url, await page.title()),
                 title: await page.title(),
                 elements: elements
-            };
-            
-            this.pages.push(pageData);
+            });
             
         } catch (e) {
             console.log(`      ⚠️ ${e.message.split('\n')[0]}`);
@@ -59,162 +54,105 @@ class AutoFlow {
     }
 
     async extractElements(page) {
-        const elementCategories = [
-            { category: 'buttons', selector: 'button, [role="button"], input[type="submit"], input[type="button"]' },
-            { category: 'inputs', selector: 'input[type="text"], input[type="email"], input[type="search"], input[type="password"], textarea' },
-            { category: 'links', selector: 'a[href]' },
-            { category: 'selects', selector: 'select' },
-            { category: 'forms', selector: 'form' },
-            { category: 'headings', selector: 'h1, h2, h3, h4, h5, h6' }
+        const categories = [
+            { name: 'buttons', sel: 'button, [role="button"], input[type="submit"]' },
+            { name: 'inputs', sel: 'input[type="text"], input[type="email"], input[type="search"]' },
+            { name: 'links', sel: 'a[href]' },
+            { name: 'headings', sel: 'h1, h2, h3' },
+            { name: 'forms', sel: 'form' }
         ];
 
         const elements = [];
-        
-        for (const { category, selector } of elementCategories) {
+        for (const cat of categories) {
             try {
-                const els = await page.$$(selector);
+                const els = await page.$$(cat.sel);
                 for (const el of els) {
-                    const selector = await this.getUniqueSelector(page, el);
                     const text = await el.textContent().catch(() => '');
-                    const tag = await el.evaluate(e => e.tagName);
-                    
+                    const selector = await this.getSelector(el);
                     if (text && text.trim().length > 0) {
                         elements.push({
-                            category,
-                            tag: tag.toLowerCase(),
-                            selector: selector,
-                            text: text.trim().substring(0, 100)
+                            category: cat.name,
+                            text: text.trim().substring(0, 80),
+                            selector: selector
                         });
                     }
                 }
             } catch (e) {}
         }
-        
         return elements;
     }
 
-    async getUniqueSelector(page, element) {
+    async getSelector(el) {
         try {
-            const id = await element.getAttribute('id');
+            const id = await el.getAttribute('id');
             if (id) return `#${id}`;
-            
-            const classes = await element.getAttribute('class');
-            if (classes) {
-                const classList = classes.split(/\s+/).filter(c => c && c.length < 20);
-                if (classList.length > 0) {
-                    const tag = await element.evaluate(e => e.tagName);
-                    return `${tag.toLowerCase()}.${classList[0]}`;
-                }
+            const cls = await el.getAttribute('class');
+            if (cls) {
+                const c = cls.split(/\s+/)[0];
+                if (c) return (await el.evaluate(e => e.tagName)).toLowerCase() + '.' + c;
             }
-            
-            return await element.evaluate((el) => el.tagName.toLowerCase());
-        } catch (e) {
-            return 'unknown';
-        }
+            return (await el.evaluate(e => e.tagName)).toLowerCase();
+        } catch (e) { return 'el'; }
     }
 
-    async scanAllMenus(page) {
-        console.log(`\n🗺️  Scanning ALL menu dropdowns...\n`);
+    async scanTopLevelMenus(page) {
+        console.log(`\n🗺️  Finding ALL top-level menu items...\n`);
         
-        // Strategy 1: Find all elements that might be menu parents (with dropdowns)
-        const menuSelectors = [
-            // Standard dropdown patterns
-            '[class*="menu"] li:has(a)',
-            'nav [class*="menu"] > li',
-            '.navbar-nav > li',
-            '.nav-item:has(a)',
-            '[role="menubar"] > [role="menuitem"]',
-            // Generic list-based menus
-            'header ul li',
-            'nav ul li',
-            // Dropdown toggles
-            '[class*="dropdown"]:not(.dropdown-menu):not(.dropdown-item)',
-            '[data-toggle="dropdown"]',
-            // Mega menu items
-            '[class*="mega-menu"] > a',
-            // Any link that has siblings with links (potential menu)
-            'header a:not([href^="http"])',
-        ];
-
-        const allMenuItems = new Set();
-        
-        for (const sel of menuSelectors) {
-            try {
-                const items = await page.$$(sel);
-                for (const item of items) {
-                    const text = await item.textContent().catch(() => '');
-                    if (text && text.trim().length > 0 && text.trim().length < 30) {
-                        allMenuItems.add(text.trim());
-                    }
-                }
-            } catch (e) {}
-        }
-
-        console.log(`   Found potential menu items: ${Array.from(allMenuItems).slice(0, 10).join(', ')}`);
-        
-        // Strategy 2: Hover over each top-level menu item to reveal dropdown
-        const topLevelMenuSelectors = [
-            'nav > ul > li > a',
-            '.navbar > .container > ul > li > a',
-            'header nav ul li a',
-            '[role="menubar"] > [role="menuitem"]',
-            '.nav > .nav-item > a',
-            '[class*="header"] a[href]',
-            'header a[href]:not([href^="http"])',
-            // More generic
-            'nav a, .menu a, .nav a, header a'
-        ];
-
-        // Get all unique links from the page first
+        // First, get ALL unique paths from the site
         const allLinks = await page.$$eval('a[href]', links => 
-            links.map(l => ({ href: l.href, text: l.textContent?.trim() })).filter(l => l.text && l.href.includes('brave.com'))
+            links.filter(l => l.href.includes('brave.com') && !l.href.includes('#'))
+                 .map(l => ({ href: l.href, text: l.textContent?.trim() || '' }))
         );
-        
-        console.log(`\n   Total links found on page: ${allLinks.length}`);
-        
-        // Group links by their likely menu (by URL path)
-        const menuGroups = {};
+
+        // Extract unique top-level paths (first path segment after domain)
+        const pathCounts = {};
         for (const link of allLinks) {
             try {
                 const url = new URL(link.href);
-                const path = url.pathname.split('/').filter(p => p)[0];
-                if (!menuGroups[path]) menuGroups[path] = [];
-                menuGroups[path].push(link);
+                const path = url.pathname.split('/')[1] || '';
+                if (path && path.length < 30 && !path.includes('?')) {
+                    if (!pathCounts[path]) pathCounts[path] = { count: 0, links: [] };
+                    pathCounts[path].count++;
+                    pathCounts[path].links.push(link);
+                }
             } catch (e) {}
         }
+
+        // Sort by frequency and take top menu paths
+        const menuPaths = Object.entries(pathCounts)
+            .sort((a, b) => b[1].count - a[1].count)
+            .filter(([path]) => path !== '' && !path.includes('.'))
+            .slice(0, 8); // Top 8 menu paths
+
+        console.log(`   Found ${menuPaths.length} menu sections:\n`);
         
-        console.log(`   Menu groups found: ${Object.keys(menuGroups).length}`);
-        
-        // Visit pages from each menu group
-        let count = 0;
-        for (const [path, links] of Object.entries(menuGroups)) {
-            if (count >= 25) break; // Increased limit
-            if (path === '' || path === 'www' || path === 'store') continue;
+        // Visit pages from each menu path
+        let menuNum = 1;
+        for (const [path, data] of menuPaths) {
+            if (this.pages.length >= this.maxPages) break;
             
-            console.log(`\n   📂 Menu: /${path}/ (${links.length} links)`);
+            console.log(`   ${menuNum}. /${path}/ (${data.count} links)`);
             
-            // Visit more links from each menu
-            for (const link of links.slice(0, 10)) {
+            // Get unique URLs from this path
+            const uniqueUrls = [...new Set(data.links.map(l => l.href))].slice(0, 6);
+            
+            for (const linkUrl of uniqueUrls) {
                 if (this.pages.length >= this.maxPages) break;
-                if (link.href && !link.href.includes('#')) {
-                    await this.visitPage(page, link.href);
-                    count++;
-                }
+                await this.visitPage(page, linkUrl);
             }
+            menuNum++;
         }
-        
-        console.log(`\n✅ Menu scan complete! Visited ${this.pages.length} pages total.`);
+
+        console.log(`\n✅ Total pages scanned: ${this.pages.length}`);
     }
 
     guessName(url, title) {
         const path = new URL(url).pathname;
         if (!path || path === '/') return 'Home';
-        
         const parts = path.split('/').filter(p => p);
         if (parts.length > 0) {
             return toTitleCase(parts[parts.length - 1].replace(/[-_]/g, ' ').replace(/\.\w+$/, ''));
         }
-        
         return title.substring(0, 30);
     }
 }
@@ -223,17 +161,13 @@ function toTitleCase(str) {
     return str.replace(/\b\w/g, l => l.toUpperCase());
 }
 
-// Usage
 const url = process.argv[2] || 'https://example.com';
 console.log(`🔍 AutoFlow - Full Menu Scanner\n`);
 
 new AutoFlow(url).discover().then(result => {
-    console.log(`\n✅ Discovery complete!`);
-    console.log(`   Total pages: ${result.pages.length}`);
-    
-    // Save results
+    console.log(`\n✅ Done! ${result.pages.length} pages`);
     require('fs').writeFileSync('workflow.json', JSON.stringify(result, null, 2));
-    console.log(`\n💾 Saved to workflow.json`);
+    console.log(`💾 Saved to workflow.json`);
 }).catch(e => {
     console.error(`❌ Error: ${e.message}`);
     process.exit(1);
