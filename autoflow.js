@@ -50,11 +50,17 @@ class AutoFlow {
 
     async extractElements(page) {
         const categories = [
-            { name: 'buttons', sel: 'button, [role="button"], input[type="submit"]' },
-            { name: 'inputs', sel: 'input[type="text"], input[type="email"], input[type="search"], input[type="password"]' },
+            { name: 'buttons', sel: 'button, [role="button"], input[type="submit"], input[type="button"]' },
+            { name: 'inputs', sel: 'input[type="text"], input[type="email"], input[type="search"], input[type="password"], input[type="checkbox"], input[type="radio"], textarea' },
             { name: 'links', sel: 'a[href]' },
-            { name: 'headings', sel: 'h1, h2, h3' },
-            { name: 'forms', sel: 'form' }
+            { name: 'headings', sel: 'h1, h2, h3, h4, h5, h6' },
+            { name: 'forms', sel: 'form' },
+            { name: 'divs', sel: 'div[class], div[id]' },
+            { name: 'sections', sel: 'section, article, main, aside' },
+            { name: 'images', sel: 'img[alt]' },
+            { name: 'lists', sel: 'ul, ol, li' },
+            { name: 'menus', sel: 'nav, [role="navigation"], .menu, .navbar' },
+            { name: 'modals', sel: '[role="dialog"], .modal, [class*="popup"]' }
         ];
 
         const elements = [];
