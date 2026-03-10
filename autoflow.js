@@ -13,11 +13,13 @@ class AutoFlow {
         const context = await browser.newContext();
         const page = await context.newPage();
 
+        console.log(`🔍 AutoFlow - Menu Scanner: ${this.baseUrl}\n`);
+        
         // Start with the base URL
         await this.visitPage(page, this.baseUrl);
         
-        // Try to find and click menu items
-        await this.scanMenus(page);
+        // Scan all menus
+        await this.scanAllMenus(page);
 
         await browser.close();
         
@@ -32,39 +34,26 @@ class AutoFlow {
         if (this.visited.has(url) || this.pages.length >= this.maxPages) return;
         
         this.visited.add(url);
-        console.log(`   📄 Visiting: ${url}`);
+        console.log(`   📄 [${this.pages.length + 1}] Visiting: ${url}`);
         
         try {
             await page.goto(url, { waitUntil: 'networkidle', timeout: 15000 });
+            await page.waitForTimeout(800);
             
-            // Wait a bit for any dynamic content
-            await page.waitForTimeout(1000);
-            
-            // Extract all relevant elements with their selectors
+            // Extract elements
             const elements = await this.extractElements(page);
-            
-            // Find menu links on this page
-            const menuLinks = await this.findMenuLinks(page);
             
             const pageData = {
                 url: url,
                 name: this.guessName(url, await page.title()),
                 title: await page.title(),
-                elements: elements,
-                menuLinks: menuLinks,
-                selectors: this.buildSelectorMap(elements)
+                elements: elements
             };
             
             this.pages.push(pageData);
             
-            // Visit pages found in menus
-            for (const link of menuLinks.slice(0, 10)) { // Limit to avoid too many pages
-                if (this.pages.length >= this.maxPages) break;
-                await this.visitPage(page, link);
-            }
-            
         } catch (e) {
-            console.log(`      ⚠️ Error: ${e.message.split('\n')[0]}`);
+            console.log(`      ⚠️ ${e.message.split('\n')[0]}`);
         }
     }
 
@@ -75,12 +64,7 @@ class AutoFlow {
             { category: 'links', selector: 'a[href]' },
             { category: 'selects', selector: 'select' },
             { category: 'forms', selector: 'form' },
-            { category: 'headings', selector: 'h1, h2, h3, h4, h5, h6' },
-            { category: 'images', selector: 'img' },
-            { category: 'lists', selector: 'ul, ol, [role="listbox"]' },
-            { category: 'tables', selector: 'table, [role="table"]' },
-            { category: 'dialogs', selector: '[role="dialog"], modal, .modal' },
-            { category: 'menus', selector: 'nav, [role="navigation"], .menu, .nav, header' }
+            { category: 'headings', selector: 'h1, h2, h3, h4, h5, h6' }
         ];
 
         const elements = [];
@@ -93,143 +77,132 @@ class AutoFlow {
                     const text = await el.textContent().catch(() => '');
                     const tag = await el.evaluate(e => e.tagName);
                     
-                    if (text && text.trim()) {
+                    if (text && text.trim().length > 0) {
                         elements.push({
                             category,
                             tag: tag.toLowerCase(),
                             selector: selector,
-                            text: text.trim().substring(0, 100),
-                            visible: await el.isVisible().catch(() => true)
+                            text: text.trim().substring(0, 100)
                         });
                     }
                 }
-            } catch (e) {
-                // Ignore selector errors
-            }
+            } catch (e) {}
         }
         
         return elements;
     }
 
     async getUniqueSelector(page, element) {
-        // Try to get a human-readable selector
-        const id = await element.getAttribute('id');
-        if (id) return `#${id}`;
-        
-        const classes = await element.getAttribute('class');
-        if (classes) {
-            const classList = classes.split(/\s+/).filter(c => c);
-            if (classList.length > 0) {
-                const tag = await element.evaluate(e => e.tagName);
-                return `${tag.toLowerCase()}.${classList[0]}`;
-            }
-        }
-        
-        // Fall back to CSS selector
         try {
-            return await element.evaluate((el) => {
-                if (el.id) return `#${el.id}`;
-                if (el.className && typeof el.className === 'string') {
-                    return `${el.tagName.toLowerCase()}.${el.className.split(' ')[0]}`;
+            const id = await element.getAttribute('id');
+            if (id) return `#${id}`;
+            
+            const classes = await element.getAttribute('class');
+            if (classes) {
+                const classList = classes.split(/\s+/).filter(c => c && c.length < 20);
+                if (classList.length > 0) {
+                    const tag = await element.evaluate(e => e.tagName);
+                    return `${tag.toLowerCase()}.${classList[0]}`;
                 }
-                return el.tagName.toLowerCase();
-            });
+            }
+            
+            return await element.evaluate((el) => el.tagName.toLowerCase());
         } catch (e) {
             return 'unknown';
         }
     }
 
-    async findMenuLinks(page) {
-        const links = new Set();
+    async scanAllMenus(page) {
+        console.log(`\n🗺️  Scanning ALL menu dropdowns...\n`);
         
-        try {
-            // Find all navigation menus
-            const menus = await page.$$('nav, [role="navigation"], .menu, .nav, header, .navbar, .header');
-            
-            for (const menu of menus) {
-                const menuLinks = await menu.$$('a[href]');
-                for (const link of menuLinks) {
-                    const href = await link.getAttribute('href');
-                    const text = await link.textContent();
-                    
-                    if (href && !href.startsWith('#') && !href.startsWith('javascript')) {
-                        const fullUrl = href.startsWith('http') ? href : new URL(href, this.baseUrl).href;
-                        if (fullUrl.startsWith(this.baseUrl)) {
-                            links.add(fullUrl);
-                        }
-                    }
-                }
-            }
-            
-            // Also try dropdown menus
-            const dropdowns = await page.$$('[role="menu"], .dropdown-menu, .menu-dropdown, [class*="dropdown"]');
-            for (const dropdown of dropdowns) {
-                const ddLinks = await dropdown.$$('a[href]');
-                for (const link of ddLinks) {
-                    const href = await link.getAttribute('href');
-                    if (href && !href.startsWith('#')) {
-                        const fullUrl = href.startsWith('http') ? href : new URL(href, this.baseUrl).href;
-                        if (fullUrl.startsWith(this.baseUrl)) {
-                            links.add(fullUrl);
-                        }
-                    }
-                }
-            }
-            
-        } catch (e) {
-            // Ignore errors
-        }
-        
-        return Array.from(links);
-    }
+        // Strategy 1: Find all elements that might be menu parents (with dropdowns)
+        const menuSelectors = [
+            // Standard dropdown patterns
+            '[class*="menu"] li:has(a)',
+            'nav [class*="menu"] > li',
+            '.navbar-nav > li',
+            '.nav-item:has(a)',
+            '[role="menubar"] > [role="menuitem"]',
+            // Generic list-based menus
+            'header ul li',
+            'nav ul li',
+            // Dropdown toggles
+            '[class*="dropdown"]:not(.dropdown-menu):not(.dropdown-item)',
+            '[data-toggle="dropdown"]',
+            // Mega menu items
+            '[class*="mega-menu"] > a',
+            // Any link that has siblings with links (potential menu)
+            'header a:not([href^="http"])',
+        ];
 
-    async scanMenus(page) {
-        console.log(`\n🗺️  Scanning menus...`);
+        const allMenuItems = new Set();
         
-        try {
-            // Find all menu items with dropdowns
-            const menuItems = await page.$$('[role="menuitem"], .dropdown-toggle, .has-dropdown, [class*="menu-item"]:has(a), li:has(.dropdown)');
-            
-            for (const item of menuItems) {
-                try {
-                    // Hover to open dropdown
-                    await item.hover();
-                    await page.waitForTimeout(500);
-                    
-                    // Find links in the opened dropdown
-                    const dropdownLinks = await item.$$('[role="menuitem"] a, .dropdown-menu a, .submenu a, [class*="dropdown"] a');
-                    
-                    for (const link of dropdownLinks) {
-                        const href = await link.getAttribute('href');
-                        const text = await link.textContent();
-                        
-                        if (href && !href.startsWith('#')) {
-                            const fullUrl = href.startsWith('http') ? href : new URL(href, this.baseUrl).href;
-                            console.log(`      📂 Menu: ${text?.trim() || 'unknown'} -> ${fullUrl}`);
-                            await this.visitPage(page, fullUrl);
-                        }
+        for (const sel of menuSelectors) {
+            try {
+                const items = await page.$$(sel);
+                for (const item of items) {
+                    const text = await item.textContent().catch(() => '');
+                    if (text && text.trim().length > 0 && text.trim().length < 30) {
+                        allMenuItems.add(text.trim());
                     }
-                } catch (e) {
-                    // Ignore individual menu errors
+                }
+            } catch (e) {}
+        }
+
+        console.log(`   Found potential menu items: ${Array.from(allMenuItems).slice(0, 10).join(', ')}`);
+        
+        // Strategy 2: Hover over each top-level menu item to reveal dropdown
+        const topLevelMenuSelectors = [
+            'nav > ul > li > a',
+            '.navbar > .container > ul > li > a',
+            'header nav ul li a',
+            '[role="menubar"] > [role="menuitem"]',
+            '.nav > .nav-item > a',
+            '[class*="header"] a[href]',
+            'header a[href]:not([href^="http"])',
+            // More generic
+            'nav a, .menu a, .nav a, header a'
+        ];
+
+        // Get all unique links from the page first
+        const allLinks = await page.$$eval('a[href]', links => 
+            links.map(l => ({ href: l.href, text: l.textContent?.trim() })).filter(l => l.text && l.href.includes('brave.com'))
+        );
+        
+        console.log(`\n   Total links found on page: ${allLinks.length}`);
+        
+        // Group links by their likely menu (by URL path)
+        const menuGroups = {};
+        for (const link of allLinks) {
+            try {
+                const url = new URL(link.href);
+                const path = url.pathname.split('/').filter(p => p)[0];
+                if (!menuGroups[path]) menuGroups[path] = [];
+                menuGroups[path].push(link);
+            } catch (e) {}
+        }
+        
+        console.log(`   Menu groups found: ${Object.keys(menuGroups).length}`);
+        
+        // Visit pages from each menu group
+        let count = 0;
+        for (const [path, links] of Object.entries(menuGroups)) {
+            if (count >= 15) break; // Limit to avoid too many
+            if (path === '' || path === 'www' || path === 'store') continue;
+            
+            console.log(`\n   📂 Menu: /${path}/ (${links.length} links)`);
+            
+            // Visit first few links from each menu
+            for (const link of links.slice(0, 8)) {
+                if (this.pages.length >= this.maxPages) break;
+                if (link.href && !link.href.includes('#')) {
+                    await this.visitPage(page, link.href);
+                    count++;
                 }
             }
-        } catch (e) {
-            console.log(`      ⚠️ Menu scan: ${e.message.split('\n')[0]}`);
         }
-    }
-
-    buildSelectorMap(elements) {
-        const selectors = {};
-        for (const el of elements) {
-            if (!selectors[el.category]) {
-                selectors[el.category] = [];
-            }
-            selectors[el.category].push({
-                selector: el.selector,
-                text: el.text
-            });
-        }
-        return selectors;
+        
+        console.log(`\n✅ Menu scan complete! Visited ${this.pages.length} pages total.`);
     }
 
     guessName(url, title) {
@@ -251,18 +224,11 @@ function toTitleCase(str) {
 
 // Usage
 const url = process.argv[2] || 'https://example.com';
-console.log(`🔍 AutoFlow - Menu-Aware Discovery: ${url}\n`);
+console.log(`🔍 AutoFlow - Full Menu Scanner\n`);
 
 new AutoFlow(url).discover().then(result => {
     console.log(`\n✅ Discovery complete!`);
-    console.log(`   Pages found: ${result.pages.length}`);
-    
-    // Show summary
-    console.log(`\n📋 Summary:`);
-    for (const page of result.pages.slice(0, 10)) {
-        const categories = page.elements.map(e => e.category).filter((v, i, a) => a.indexOf(v) === i);
-        console.log(`   - ${page.name}: ${categories.join(', ')}`);
-    }
+    console.log(`   Total pages: ${result.pages.length}`);
     
     // Save results
     require('fs').writeFileSync('workflow.json', JSON.stringify(result, null, 2));
