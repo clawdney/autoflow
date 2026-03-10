@@ -4,7 +4,6 @@ TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
 
 mkdir -p results
 
-# Use Python to generate the full HTML with detailed selectors
 python3 << 'PYEOF'
 import json
 import os
@@ -13,39 +12,41 @@ import html
 url = "$URL"
 timestamp = "$TIMESTAMP"
 
-# Read workflow data
 pages = []
 if os.path.exists('workflow.json'):
     with open('workflow.json') as f:
         data = json.load(f)
         pages = data.get('pages', [])
 
-# Build page content with selectors
 page_content = ""
-if pages:
-    for p in pages:
-        name = html.escape(p.get('name', '?'))
-        page_url = html.escape(p.get('url', ''))
-        
-        # Get elements grouped by category
-        elements = p.get('elements', [])
-        selectors = p.get('selectors', {})
-        
-        # Build element details
-        element_details = ""
-        for category, items in selectors.items():
-            if items:
-                items_html = ""
-                for item in items[:5]:  # Limit to 5 per category
-                    sel = html.escape(item.get('selector', ''))
-                    txt = html.escape(item.get('text', '')[:50])
-                    items_html += f'<span class="selector" title="{sel}">{txt}</span>'
-                element_details += f'<div class="category"><span class="cat-label">{category}:</span> {items_html}</div>'
-        
-        if not element_details:
-            element_details = '<span class="none">No elements found</span>'
-        
-        page_content += f'''<div class="page">
+for p in pages:
+    name = html.escape(p.get('name', '?'))
+    page_url = html.escape(p.get('url', ''))
+    
+    elements = p.get('elements', [])
+    
+    # Group elements by category
+    by_category = {}
+    for el in elements:
+        cat = el.get('category', 'other')
+        if cat not in by_category:
+            by_category[cat] = []
+        by_category[cat].append(el)
+    
+    element_details = ""
+    for cat, items in by_category.items():
+        if items:
+            items_html = ""
+            for item in items[:5]:
+                sel = html.escape(item.get('selector', ''))
+                txt = html.escape(item.get('text', '')[:40])
+                items_html += f'<span class="selector" title="{sel}">{txt}</span>'
+            element_details += f'<div class="category"><span class="cat-label">{cat}:</span> {items_html}</div>'
+    
+    if not element_details:
+        element_details = '<span class="none">No elements found</span>'
+    
+    page_content += f'''<div class="page">
     <div class="page-header">
         <div class="page-name">{name}</div>
         <div class="page-url">{page_url}</div>
@@ -55,10 +56,10 @@ if pages:
     </div>
 </div>
 '''
-else:
+
+if not page_content:
     page_content = '<p>No pages found</p>'
 
-# HTML with detailed styling
 html = '''<!DOCTYPE html>
 <html>
 <head>
@@ -97,10 +98,8 @@ a{color:#4f46e5}
 </body>
 </html>'''
 
-# Write to files
 with open('results/index.html', 'w') as f:
     f.write(html)
-
 with open('index.html', 'w') as f:
     f.write(html)
 
